@@ -4,6 +4,7 @@ import edu.rpi.legup.model.Puzzle;
 import edu.rpi.legup.model.gameboard.Board;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.model.rules.ContradictionRule;
+import edu.rpi.legup.ui.proofeditorui.treeview.TreeView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +25,8 @@ public class Skyscrapers extends Puzzle {
     /** Initializes the game board. Called by the invoker of the class */
     @Override
     public void initializeView() {
-        boardView = new SkyscrapersView((SkyscrapersBoard) originalBoard);
+        boardView = new SkyscrapersView((SkyscrapersBoard) currentBoard);
+        boardView.setBoard(currentBoard);
         addBoardListener(boardView);
     }
 

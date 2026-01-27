@@ -16,7 +16,7 @@ public class HeyawakeExporter extends PuzzleExporter {
         if (puzzle.getTree() != null) {
             board = (HeyawakeBoard) puzzle.getTree().getRootNode().getBoard();
         } else {
-            board = (HeyawakeBoard) puzzle.getOriginalBoard();
+            board = (HeyawakeBoard) puzzle.getBoardView().getBoard();
         }
 
         org.w3c.dom.Element boardElement = newDocument.createElement("board");

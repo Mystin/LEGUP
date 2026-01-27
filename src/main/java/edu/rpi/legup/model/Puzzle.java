@@ -45,7 +45,7 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
 
     protected String name;
     protected String tag = "";
-    protected Board originalBoard;
+    protected Board currentBoard;
     protected Tree tree;
     protected BoardView boardView;
     protected PuzzleImporter importer;
@@ -536,17 +536,17 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
      *
      * @return current board
      */
-    public Board getOriginalBoard() {
-        return originalBoard;
+    public Board getCurrentBoard() {
+        return currentBoard;
     }
 
     /**
      * Sets the current board
      *
-     * @param originalBoard the current board
+     * @param currentBoard the current board
      */
-    public void setOriginalBoard(Board originalBoard) {
-        this.originalBoard = originalBoard;
+    public void setCurrentBoard(Board currentBoard) {
+        this.currentBoard = currentBoard;
     }
 
     /**

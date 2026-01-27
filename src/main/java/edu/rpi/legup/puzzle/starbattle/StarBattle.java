@@ -16,7 +16,7 @@ public class StarBattle extends Puzzle {
 
     @Override
     public void initializeView() {
-        boardView = new StarBattleView((StarBattleBoard) originalBoard);
+        boardView = new StarBattleView((StarBattleBoard) currentBoard);
         addBoardListener(boardView);
     }
 

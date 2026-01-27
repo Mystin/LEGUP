@@ -22,7 +22,7 @@ public class TreeTentExporter extends PuzzleExporter {
         if (puzzle.getTree() != null) {
             board = (TreeTentBoard) puzzle.getTree().getRootNode().getBoard();
         } else {
-            board = (TreeTentBoard) puzzle.getOriginalBoard();
+            board = (TreeTentBoard) puzzle.getBoardView().getBoard();
         }
 
         org.w3c.dom.Element boardElement = newDocument.createElement("board");

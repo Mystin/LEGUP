@@ -21,8 +21,9 @@ public class ShortTruthTable extends Puzzle {
     /** Initializes the game board. Called by the invoker of the class */
     @Override
     public void initializeView() {
-        ShortTruthTableBoard sttBoard = (ShortTruthTableBoard) originalBoard;
+        ShortTruthTableBoard sttBoard = (ShortTruthTableBoard) currentBoard;
         boardView = new ShortTruthTableView(sttBoard);
+        boardView.setBoard(currentBoard);
         addBoardListener(boardView);
     }
 

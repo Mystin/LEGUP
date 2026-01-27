@@ -16,7 +16,7 @@ public class MasyuExporter extends PuzzleExporter {
         if (puzzle.getTree() != null) {
             board = (MasyuBoard) puzzle.getTree().getRootNode().getBoard();
         } else {
-            board = (MasyuBoard) puzzle.getOriginalBoard();
+            board = (MasyuBoard) puzzle.getBoardView().getBoard();
         }
 
         org.w3c.dom.Element boardElement = newDocument.createElement("board");

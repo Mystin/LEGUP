@@ -54,7 +54,7 @@ public class TreeTentImporter extends PuzzleImporter {
             treeTentBoard.getColClues().set(i, new TreeTentClue(0, i + 1, TreeTentType.CLUE_SOUTH));
         }
 
-        puzzle.setOriginalBoard(treeTentBoard);
+        puzzle.setCurrentBoard(treeTentBoard);
     }
 
     /**
@@ -207,7 +207,7 @@ public class TreeTentImporter extends PuzzleImporter {
                 }
             }
 
-            puzzle.setOriginalBoard(treeTentBoard);
+            puzzle.setCurrentBoard(treeTentBoard);
         } catch (NumberFormatException e) {
             throw new InvalidFileFormatException(
                     "TreeTent Importer: unknown value where integer expected");

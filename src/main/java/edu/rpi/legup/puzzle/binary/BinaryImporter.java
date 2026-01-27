@@ -51,7 +51,7 @@ public class BinaryImporter extends PuzzleImporter {
                 binaryBoard.setCell(x, y, cell);
             }
         }
-        puzzle.setOriginalBoard(binaryBoard);
+        puzzle.setCurrentBoard(binaryBoard);
     }
 
     /**
@@ -120,7 +120,7 @@ public class BinaryImporter extends PuzzleImporter {
                     }
                 }
             }
-            puzzle.setOriginalBoard(binaryBoard);
+            puzzle.setCurrentBoard(binaryBoard);
         } catch (NumberFormatException e) {
             throw new InvalidFileFormatException(
                     "binary Importer: unknown value where integer expected");

@@ -23,7 +23,7 @@ public class BinaryExporter extends PuzzleExporter {
         if (puzzle.getTree() != null) {
             board = (BinaryBoard) puzzle.getTree().getRootNode().getBoard();
         } else {
-            board = (BinaryBoard) puzzle.getOriginalBoard();
+            board = (BinaryBoard) puzzle.getBoardView().getBoard();
         }
 
         org.w3c.dom.Element boardElement = newDocument.createElement("board");

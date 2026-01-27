@@ -20,7 +20,8 @@ public class Nurikabe extends Puzzle {
     /** Initializes the game board. Called by the invoker of the class */
     @Override
     public void initializeView() {
-        boardView = new NurikabeView((NurikabeBoard) originalBoard);
+        boardView = new NurikabeView((NurikabeBoard) currentBoard);
+        boardView.setBoard(currentBoard);
         addBoardListener(boardView);
     }
 

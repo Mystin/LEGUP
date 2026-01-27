@@ -76,7 +76,7 @@ public class EditLineCommand extends PuzzleCommand {
 
             getInstance().getLegupUI().repaintTree();
             board = (MasyuBoard) transition.getBoard();
-            getInstance().getPuzzleModule().setOriginalBoard(board);
+            getInstance().getPuzzleModule().setCurrentBoard(board);
             oldData = newData.copy();
         } else {
             transitionView = (TreeTransitionView) selectedView;
@@ -160,11 +160,12 @@ public class EditLineCommand extends PuzzleCommand {
             TreeNode treeNode = (TreeNode) selectedView.getTreeElement();
 
             tree.removeTreeElement(transition);
+            treeView.removeTreeElement(newSelectedView);
 
             selection.newSelection(selectedView);
 
             getInstance().getLegupUI().repaintTree();
-            getInstance().getPuzzleModule().setOriginalBoard(treeNode.getBoard());
+            getInstance().getPuzzleModule().setCurrentBoard(treeNode.getBoard());
         }
 
         Board prevBoard = null; // transition.getParentNode().getBoard();
