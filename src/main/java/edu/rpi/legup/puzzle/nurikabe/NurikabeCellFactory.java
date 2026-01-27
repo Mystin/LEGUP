@@ -54,30 +54,7 @@ public class NurikabeCellFactory extends ElementFactory {
         }
     }
 
-    @Override
-    public Goal importGoal(Node node, Board board) throws InvalidFileFormatException {
-        try {
-            if (!node.getNodeName().equalsIgnoreCase("goal")) {
-                throw new InvalidFileFormatException(
-                        "nurikabe Factory: unknown puzzleElement puzzleElement");
-            }
 
-            NamedNodeMap attributeList = node.getAttributes();
-            String goalTypeString = attributeList.getNamedItem("type").getNodeValue();
-            GoalType goalType = goalTypeString == null ? GoalType.DEFAULT : GoalType.valueOf(goalTypeString.toUpperCase());
-
-            if (goalType != GoalType.DEFAULT) {
-                return new Goal(null, goalType);
-            } else{
-                return new Goal(null, goalType);
-            }
-        } catch (NumberFormatException e) {
-            throw new InvalidFileFormatException(
-              "nurikabe Factory: unknown value where integer expected");
-        } catch (NullPointerException e) {
-            throw new InvalidFileFormatException("nurikabe Factory: could not find attribute(s)");
-        }
-    }
     /**
      * Creates a xml document puzzleElement from a cell for exporting
      *

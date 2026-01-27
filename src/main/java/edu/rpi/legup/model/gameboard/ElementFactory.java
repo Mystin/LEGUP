@@ -1,9 +1,11 @@
 package edu.rpi.legup.model.gameboard;
 
 import edu.rpi.legup.model.Goal;
+import edu.rpi.legup.model.GoalType;
 import edu.rpi.legup.save.InvalidFileFormatException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
@@ -30,8 +32,26 @@ public abstract class ElementFactory {
      * @return newly created Goal from the xml document Node
      * @throws InvalidFileFormatException thrown if the xml node is malformed
      */
-    public abstract Goal importGoal(Node node, Board board)
-        throws InvalidFileFormatException;
+    public Goal importGoal(Node node, Board board) throws InvalidFileFormatException {
+        try {
+            if (!node.getNodeName().equalsIgnoreCase("goal")) {
+                throw new InvalidFileFormatException(
+                        "Factory: unknown puzzleElement puzzleElement");
+            }
+
+            NamedNodeMap attributeList = node.getAttributes();
+            String goalTypeString = attributeList.getNamedItem("type").getNodeValue();
+            GoalType goalType = goalTypeString == null ? GoalType.DEFAULT : GoalType.valueOf(goalTypeString.toUpperCase());
+
+            return new Goal(null, goalType);
+
+        } catch (NumberFormatException e) {
+            throw new InvalidFileFormatException(
+                    "Factory: unknown value where integer expected");
+        } catch (NullPointerException e) {
+            throw new InvalidFileFormatException("Factory: could not find attribute(s)");
+        }
+    }
     /**
      * Creates a xml document {@link PuzzleElement} from a cell for exporting.
      *
