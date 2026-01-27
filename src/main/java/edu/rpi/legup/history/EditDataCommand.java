@@ -45,11 +45,7 @@ public class EditDataCommand extends PuzzleCommand {
         this.transition = null;
     }
 
-    /**
-     * Executes the edit data command, modifying the puzzle element and propagating changes
-     *
-     * <p>The command edits the elementView for the selection stored within this class.
-     */
+    /** Executes the edit data command, modifying the puzzle element and propagating changes */
     @SuppressWarnings("unchecked")
     @Override
     public void executeCommand() {
@@ -63,8 +59,6 @@ public class EditDataCommand extends PuzzleCommand {
         Board board = treeElement.getBoard();
         PuzzleElement selectedPuzzleElement = elementView.getPuzzleElement();
 
-        // Editing an element must edit the data within a transition. Thus, if
-        // a node is selected, we need to
         if (treeElement.getType() == TreeElementType.NODE) {
             TreeNode treeNode = (TreeNode) treeElement;
             if (treeNode.getChildren().isEmpty()) {
@@ -74,16 +68,14 @@ public class EditDataCommand extends PuzzleCommand {
                 puzzle.notifyTreeListeners(listener -> listener.onTreeElementAdded(transition));
             }
             board = transition.getBoard();
+            puzzleElement = board.getPuzzleElement(selectedPuzzleElement);
+            savePuzzleElement = puzzleElement.copy();
         } else {
             transition = (TreeTransition) treeElement;
+            puzzleElement = board.getPuzzleElement(selectedPuzzleElement);
+            savePuzzleElement = puzzleElement.copy();
         }
 
-        // Now, we have the puzzle element that we will edit.
-        puzzleElement = board.getPuzzleElement(selectedPuzzleElement);
-        savePuzzleElement = puzzleElement.copy();
-
-        // We call the overloaded changeCell, which is dependent on which
-        // puzzle we are solving
         Board prevBoard = transition.getParents().get(0).getBoard();
         boardView.getElementController().changeCell(event, puzzleElement);
 
@@ -94,7 +86,6 @@ public class EditDataCommand extends PuzzleCommand {
         }
         transition.propagateChange(puzzleElement);
 
-        // Finally, we notify listeners that the tree changed.
         final TreeElement finalTreeElement = transition;
         puzzle.notifyBoardListeners(listener -> listener.onTreeElementChanged(finalTreeElement));
         puzzle.notifyBoardListeners(listener -> listener.onBoardDataChanged(puzzleElement));

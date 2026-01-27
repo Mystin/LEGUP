@@ -213,10 +213,10 @@ public abstract class PuzzleImporter {
      */
     protected void setCells(Node node) throws InvalidFileFormatException {
         NodeList dataList = ((org.w3c.dom.Element) node).getElementsByTagName("cell");
-        Board board = puzzle.getOriginalBoard();
+        Board board = puzzle.getCurrentBoard();
         for (int i = 0; i < dataList.getLength(); i++) {
             PuzzleElement data =
-                    puzzle.getFactory().importCell(dataList.item(i), puzzle.getOriginalBoard());
+                    puzzle.getFactory().importCell(dataList.item(i), puzzle.getCurrentBoard());
             board.setPuzzleElement(data.getIndex(), data);
         }
     }
@@ -251,7 +251,7 @@ public abstract class PuzzleImporter {
                 throw new InvalidFileFormatException(
                         "Proof Tree construction error: duplicate tree node ID found");
             }
-            TreeNode treeNode = new TreeNode(puzzle.getOriginalBoard().copy());
+            TreeNode treeNode = new TreeNode(puzzle.getCurrentBoard().copy());
             if (isRoot.equalsIgnoreCase("true")) {
                 if (tree.getRootNode() != null) {
                     throw new InvalidFileFormatException(
@@ -450,7 +450,7 @@ public abstract class PuzzleImporter {
      * current board state. The created tree is then set as the proof tree for the puzzle.
      */
     protected void createDefaultTree() {
-        TreeNode root = new TreeNode(puzzle.getOriginalBoard());
+        TreeNode root = new TreeNode(puzzle.getCurrentBoard());
         root.setRoot(true);
         Tree tree = new Tree();
         tree.setRootNode(root);

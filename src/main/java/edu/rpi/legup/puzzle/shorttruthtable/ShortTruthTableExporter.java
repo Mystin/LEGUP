@@ -17,7 +17,7 @@ public class ShortTruthTableExporter extends PuzzleExporter {
         if (puzzle.getTree() != null) {
             board = (ShortTruthTableBoard) puzzle.getTree().getRootNode().getBoard();
         } else {
-            board = (ShortTruthTableBoard) puzzle.getOriginalBoard();
+            board = (ShortTruthTableBoard) puzzle.getBoardView().getBoard();
         }
 
         org.w3c.dom.Element boardElement = newDocument.createElement("board");

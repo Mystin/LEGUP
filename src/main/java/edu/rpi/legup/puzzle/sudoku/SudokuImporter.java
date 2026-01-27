@@ -47,7 +47,7 @@ public class SudokuImporter extends PuzzleImporter {
             }
         }
 
-        puzzle.setOriginalBoard(sudokuBoard);
+        puzzle.setCurrentBoard(sudokuBoard);
     }
 
     /**
@@ -111,7 +111,7 @@ public class SudokuImporter extends PuzzleImporter {
                 }
             }
 
-            puzzle.setOriginalBoard(sudokuBoard);
+            puzzle.setCurrentBoard(sudokuBoard);
         } catch (NumberFormatException e) {
             throw new InvalidFileFormatException(
                     "Sudoku Importer: unknown value where integer expected");

@@ -16,7 +16,7 @@ public class SudokuExporter extends PuzzleExporter {
         if (puzzle.getTree() != null) {
             board = (SudokuBoard) puzzle.getTree().getRootNode().getBoard();
         } else {
-            board = (SudokuBoard) puzzle.getOriginalBoard();
+            board = (SudokuBoard) puzzle.getBoardView().getBoard();
         }
 
         org.w3c.dom.Element boardElement = newDocument.createElement("board");

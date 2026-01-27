@@ -21,7 +21,8 @@ public class Fillapix extends Puzzle {
     /** Initializes the game board */
     @Override
     public void initializeView() {
-        boardView = new FillapixView((FillapixBoard) originalBoard);
+        boardView = new FillapixView((FillapixBoard) currentBoard);
+        boardView.setBoard(currentBoard);
         addBoardListener(boardView);
     }
 

@@ -48,7 +48,7 @@ public class TreeTentController extends ElementController {
                     GameBoardFacade.getInstance().getLegupUI().getTreePanel().getTreeView();
             BoardView boardView = getInstance().getLegupUI().getBoardView();
             lastCellPressed = boardView.getElement(e.getPoint());
-            Board board = treeView.getSelection().getFirstSelection().getTreeElement().getBoard();
+            Board board = boardView.getBoard();
             TreeViewSelection selection = treeView.getSelection();
 
             if (dragStart != null) {

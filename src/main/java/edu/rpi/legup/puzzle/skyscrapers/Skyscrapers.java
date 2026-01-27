@@ -24,7 +24,8 @@ public class Skyscrapers extends Puzzle {
     /** Initializes the game board. Called by the invoker of the class */
     @Override
     public void initializeView() {
-        boardView = new SkyscrapersView((SkyscrapersBoard) originalBoard);
+        boardView = new SkyscrapersView((SkyscrapersBoard) currentBoard);
+        boardView.setBoard(currentBoard);
         addBoardListener(boardView);
     }
 
