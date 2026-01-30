@@ -3,7 +3,6 @@ package edu.rpi.legup.puzzle.lightup;
 import edu.rpi.legup.model.Goal;
 import edu.rpi.legup.model.GoalType;
 import edu.rpi.legup.model.PuzzleImporter;
-import edu.rpi.legup.puzzle.nurikabe.NurikabeCell;
 import edu.rpi.legup.save.InvalidFileFormatException;
 import java.awt.*;
 import org.w3c.dom.Element;
@@ -97,12 +96,12 @@ public class LightUpImporter extends PuzzleImporter {
                             (LightUpCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), lightUpBoard);
+
                     goal.addCell(cell);
                 }
                 puzzle.setGoal(goal);
             } else {
                 Goal goal = new Goal(null, GoalType.DEFAULT);
-
                 puzzle.setGoal(goal);
             }
 

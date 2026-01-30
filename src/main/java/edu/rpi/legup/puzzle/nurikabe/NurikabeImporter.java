@@ -104,7 +104,6 @@ public class NurikabeImporter extends PuzzleImporter {
                 puzzle.setGoal(goal);
             } else {
                 Goal goal = new Goal(null, GoalType.DEFAULT);
-
                 puzzle.setGoal(goal);
             }
 

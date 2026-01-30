@@ -40,10 +40,11 @@ a different type in each, for the puzzle to be valid.
 
 ## Extending to New Puzzles
 
-In order to extend this functionality to a new puzzle, update that puzzle's importer with the code to add
-the goal to the puzzle from the xml, and update that puzzle's cell code to override the isKnown() function.
-Nothing else should be required for any puzzle?
-
+In order to extend this functionality to existing puzzles, three changes need to be made:
+ In that puzzle's Cell.java, override isKnown() to check for that puzzle's unknown value.
+ In its Importer.java, copy in the if statement regarding goal importing.
+ In its CellFactory.java, delete the importGoal() override method.
+For examples of the code look at Nurikabe.
 
 ## Tests
 
