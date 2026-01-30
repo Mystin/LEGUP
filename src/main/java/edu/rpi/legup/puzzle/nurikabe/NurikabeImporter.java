@@ -9,6 +9,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
+
 public class NurikabeImporter extends PuzzleImporter {
     public NurikabeImporter(Nurikabe nurikabe) {
         super(nurikabe);
@@ -89,6 +93,15 @@ public class NurikabeImporter extends PuzzleImporter {
                 throw new InvalidFileFormatException("nurikabe Importer: invalid board dimensions");
             }
 
+            TreeSet<Point> goalLocs = new TreeSet<>(new Comparator<Point>() {
+                @Override
+                public int compare(Point p1, Point p2) {
+                    int xComp = Double.compare(p1.getX(), p2.getX());
+                    if (xComp == 0)
+                        return Double.compare(p1.getY(), p2.getY());
+                    return xComp;
+                }
+            });
             if (boardElement.getElementsByTagName("goal").getLength() != 0) {
                 Element goalElement = (Element) boardElement.getElementsByTagName("goal").item(0);
                 Goal goal = puzzle.getFactory().importGoal(goalElement, nurikabeBoard);
@@ -100,6 +113,7 @@ public class NurikabeImporter extends PuzzleImporter {
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), nurikabeBoard);
                     goal.addCell(cell);
+                    goalLocs.add(cell.getLocation());
                 }
                 puzzle.setGoal(goal);
             } else {
@@ -107,7 +121,7 @@ public class NurikabeImporter extends PuzzleImporter {
 
                 puzzle.setGoal(goal);
             }
-
+            System.out.println(goalLocs);
             Element dataElement = (Element) boardElement.getElementsByTagName("cells").item(0);
             NodeList elementDataList = dataElement.getElementsByTagName("cell");
 
@@ -124,6 +138,8 @@ public class NurikabeImporter extends PuzzleImporter {
                     cell.setModifiable(false);
                     cell.setGiven(true);
                 }
+                if (goalLocs.contains(cell.getLocation()))
+                    cell.setGoal(true);
                 nurikabeBoard.setCell(loc.x, loc.y, cell);
             }
 
@@ -134,6 +150,8 @@ public class NurikabeImporter extends PuzzleImporter {
                                 new NurikabeCell(NurikabeType.UNKNOWN.toValue(), new Point(x, y));
                         cell.setIndex(y * height + x);
                         cell.setModifiable(true);
+                        if (goalLocs.contains(cell.getLocation()))
+                            cell.setGoal(true);
                         nurikabeBoard.setCell(x, y, cell);
                     }
                 }
