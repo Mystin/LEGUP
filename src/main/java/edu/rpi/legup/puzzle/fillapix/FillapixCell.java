@@ -73,6 +73,9 @@ public class FillapixCell extends GridCell<Integer> implements Comparable<Fillap
         }
     }
 
+    @Override
+    public boolean isKnown() {return data != 0;}
+
     /**
      * Performs a deep copy on the FillapixCell
      *

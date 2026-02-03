@@ -280,8 +280,7 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
                 for (GridCell goalCell : this.goal.getCells()) {
                     Set<Integer> cellValues = new HashSet<>();
                     for (TreeElement leaf : tree.getLeafTreeElements()) {
-                        // If the leaf is a transition, check all parents
-                        if (!(leaf.getType() == TreeElementType.NODE)) {yield false;}
+                        if (leaf.getType() != TreeElementType.NODE) {yield false;}
                         TreeNode node = (TreeNode) leaf;
                         if (!node.isRoot() && node.getParent().isContradictoryBranch()) {continue;}
                         GridBoard board = (GridBoard) node.getBoard();

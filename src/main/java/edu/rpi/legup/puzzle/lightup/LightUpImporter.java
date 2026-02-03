@@ -1,5 +1,7 @@
 package edu.rpi.legup.puzzle.lightup;
 
+import edu.rpi.legup.model.Goal;
+import edu.rpi.legup.model.GoalType;
 import edu.rpi.legup.model.PuzzleImporter;
 import edu.rpi.legup.save.InvalidFileFormatException;
 import java.awt.*;
@@ -82,6 +84,25 @@ public class LightUpImporter extends PuzzleImporter {
 
             if (lightUpBoard == null) {
                 throw new InvalidFileFormatException("lightup Importer: invalid board dimensions");
+            }
+
+            if (boardElement.getElementsByTagName("goal").getLength() != 0) {
+                Element goalElement = (Element) boardElement.getElementsByTagName("goal").item(0);
+                Goal goal = puzzle.getFactory().importGoal(goalElement, lightUpBoard);
+
+                NodeList cellList = goalElement.getElementsByTagName("cell");
+                for (int i = 0; i < cellList.getLength(); i++) {
+                    LightUpCell cell =
+                            (LightUpCell)
+                                    puzzle.getFactory()
+                                            .importCell(cellList.item(i), lightUpBoard);
+
+                    goal.addCell(cell);
+                }
+                puzzle.setGoal(goal);
+            } else {
+                Goal goal = new Goal(null, GoalType.DEFAULT);
+                puzzle.setGoal(goal);
             }
 
             int width = lightUpBoard.getWidth();
