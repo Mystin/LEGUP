@@ -326,8 +326,8 @@ class ShortTruthTableImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    ShortTruthTableCell cell =
+                            (ShortTruthTableCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), sttBoard);
                     goal.addCell(cell);

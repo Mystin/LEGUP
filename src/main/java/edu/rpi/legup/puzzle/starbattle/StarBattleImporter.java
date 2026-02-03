@@ -93,8 +93,8 @@ public class StarBattleImporter extends PuzzleImporter {
 
             NodeList cellList = goalElement.getElementsByTagName("cell");
             for (int i = 0; i < cellList.getLength(); i++) {
-                NurikabeCell cell =
-                        (NurikabeCell)
+                StarBattleCell cell =
+                        (StarBattleCell)
                                 puzzle.getFactory()
                                         .importCell(cellList.item(i), StarBattleBoard);
                 goal.addCell(cell);

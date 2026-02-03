@@ -178,16 +178,16 @@ public class BattleshipImporter extends PuzzleImporter {
                                 index - 1,
                                 new BattleshipClue(value, index, BattleshipType.CLUE_SOUTH));
             }
-            puzzle.setCurrentBoard(battleShipBoard);
 
+            puzzle.setCurrentBoard(battleShipBoard);
             if (boardElement.getElementsByTagName("goal").getLength() != 0) {
                 Element goalElement = (Element) boardElement.getElementsByTagName("goal").item(0);
                 Goal goal = puzzle.getFactory().importGoal(goalElement, battleShipBoard);
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    BattleshipCell cell =
+                            (BattleshipCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), battleShipBoard);
                     goal.addCell(cell);

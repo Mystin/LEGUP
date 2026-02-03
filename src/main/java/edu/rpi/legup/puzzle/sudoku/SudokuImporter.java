@@ -121,8 +121,8 @@ public class SudokuImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    SudokuCell cell =
+                            (SudokuCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), sudokuBoard);
                     goal.addCell(cell);

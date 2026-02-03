@@ -100,6 +100,7 @@ public class HeyawakeImporter extends PuzzleImporter {
                     }
                 }
             }
+
             puzzle.setCurrentBoard(heyawakeBoard);
             if (boardElement.getElementsByTagName("goal").getLength() != 0) {
                 Element goalElement = (Element) boardElement.getElementsByTagName("goal").item(0);
@@ -107,8 +108,8 @@ public class HeyawakeImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    HeyawakeCell cell =
+                            (HeyawakeCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), heyawakeBoard);
                     goal.addCell(cell);

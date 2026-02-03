@@ -217,8 +217,8 @@ public class TreeTentImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    TreeTentCell cell =
+                            (TreeTentCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), treeTentBoard);
                     goal.addCell(cell);

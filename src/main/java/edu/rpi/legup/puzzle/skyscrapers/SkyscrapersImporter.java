@@ -220,8 +220,8 @@ public class SkyscrapersImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    SkyscrapersCell cell =
+                            (SkyscrapersCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), skyscrapersBoard);
                     goal.addCell(cell);

@@ -122,8 +122,8 @@ public class ThermometerImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    ThermometerCell cell =
+                            (ThermometerCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), thermometerBoard);
                     goal.addCell(cell);

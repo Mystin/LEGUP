@@ -123,6 +123,7 @@ public class BinaryImporter extends PuzzleImporter {
                     }
                 }
             }
+
             puzzle.setCurrentBoard(binaryBoard);
 
             if (boardElement.getElementsByTagName("goal").getLength() != 0) {
@@ -131,8 +132,8 @@ public class BinaryImporter extends PuzzleImporter {
 
                 NodeList cellList = goalElement.getElementsByTagName("cell");
                 for (int i = 0; i < cellList.getLength(); i++) {
-                    NurikabeCell cell =
-                            (NurikabeCell)
+                    BinaryCell cell =
+                            (BinaryCell)
                                     puzzle.getFactory()
                                             .importCell(cellList.item(i), binaryBoard);
                     goal.addCell(cell);
