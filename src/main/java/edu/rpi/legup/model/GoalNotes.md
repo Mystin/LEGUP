@@ -38,6 +38,20 @@ To prove a cell must be one given type, the same condition as proving a specific
 To prove a cell might be multiple types, only __two valid branches__ need to exist, where the cell is 
 a different type in each, for the puzzle to be valid.
 
+## Extending to New Puzzles
+
+In order to extend this functionality to existing puzzles, three changes need to be made:
+ In that puzzle's Cell.java, override isKnown() to check for that puzzle's unknown value.
+ In its Importer.java, copy in the if statement regarding goal importing.
+ In its CellFactory.java, delete the importGoal() override method.
+For examples of the code look at Nurikabe.
+
+## Tests
+
+Tests currently exist for the Nurikabe implementation of PROVE_CELL_MUST_BE and PROVE_CELL_MIGHT_NOT_BE. Tests
+for the other goal conditions can be written, but it is probably best to find a way to generalize the existing
+tests to use the Puzzle class instead of Nurikabe first.
+
 
 ## Possible UI
 Puzzle Board:

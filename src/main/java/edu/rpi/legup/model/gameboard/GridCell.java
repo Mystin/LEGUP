@@ -82,7 +82,7 @@ public class GridCell<T> extends PuzzleElement<T> {
      *
      * @return true if cell is unknown, false otherwise.
      */
-    public boolean isKnown() {return !(data == null);}
+    public boolean isKnown() {return data != null;}
 
 
 }
