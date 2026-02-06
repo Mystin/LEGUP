@@ -83,8 +83,8 @@ public class Goal {
             case GoalType.PROVE_MULTIPLE_CELL_VALUE -> {
                 String text = "Prove " + (cellList.size() > 1 ? "cells " : "cell ");
                 text += concatCellLocs(cellList);
-                text += (cellList.size() > 1 ? " collectively have" : " has");
-                yield text + " only one possible value.";
+                text += (cellList.size() > 1 ? " individually have" : " has");
+                yield text + " multiple possible values.";
             }
             default -> "Unrecognized goal condition.";
         };
