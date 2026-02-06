@@ -1,6 +1,8 @@
 package edu.rpi.legup.puzzle.battleship;
 
 import edu.rpi.legup.model.gameboard.GridCell;
+import edu.rpi.legup.puzzle.minesweeper.MinesweeperTileData;
+
 import java.awt.*;
 
 public class BattleshipCell extends GridCell<BattleshipType> {
@@ -36,4 +38,7 @@ public class BattleshipCell extends GridCell<BattleshipType> {
         copy.setGiven(isGiven);
         return copy;
     }
+
+    @Override
+    public boolean isKnown() {return !(data == BattleshipType.UNKNOWN);}
 }

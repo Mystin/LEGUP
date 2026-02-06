@@ -78,4 +78,8 @@ public class BinaryCell extends GridCell<Integer> {
             this.data = 2;
         }
     }
+
+    @Override
+    public boolean isKnown() {return !(data == 2);}
+
 }

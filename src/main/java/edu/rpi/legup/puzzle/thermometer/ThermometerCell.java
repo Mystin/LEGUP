@@ -64,4 +64,7 @@ public class ThermometerCell extends GridCell<Integer> {
                 + " FILL = "
                 + getFill();
     }
+
+    @Override
+    public boolean isKnown() {return !(data == 0);}
 }

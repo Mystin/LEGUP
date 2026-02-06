@@ -53,4 +53,7 @@ public class TreeTentCell extends GridCell<TreeTentType> {
         copy.setGiven(isGiven);
         return copy;
     }
+
+    @Override
+    public boolean isKnown() {return !(data == TreeTentType.UNKNOWN);}
 }
