@@ -84,5 +84,13 @@ public class GridCell<T> extends PuzzleElement<T> {
      */
     public boolean isKnown() {return data != null;}
 
-
+    /**
+     * Get text description of cell's state.
+     * Used for generating goal condition text.
+     *
+     * @return String describing cell state.
+     */
+    public String describeState() {
+        return "data = " + getData();
+    }
 }
