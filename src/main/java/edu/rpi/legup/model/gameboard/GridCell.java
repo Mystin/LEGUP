@@ -63,6 +63,7 @@ public class GridCell<T> extends PuzzleElement<T> {
         copy.setModifiable(isModifiable);
         copy.setModified(isModified);
         copy.setGiven(isGiven);
+        copy.setGoal(isGoal);
         return copy;
     }
 

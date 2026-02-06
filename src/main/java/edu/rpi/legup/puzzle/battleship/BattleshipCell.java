@@ -34,6 +34,7 @@ public class BattleshipCell extends GridCell<BattleshipType> {
         copy.setIndex(index);
         copy.setModifiable(isModifiable);
         copy.setGiven(isGiven);
+        copy.setGoal(isGoal);
         return copy;
     }
 }

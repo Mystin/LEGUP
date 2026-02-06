@@ -68,6 +68,7 @@ public class MinesweeperCell extends GridCell<MinesweeperTileData> {
         copy.setIndex(index);
         copy.setModifiable(isModifiable);
         copy.setGiven(isGiven);
+        copy.setGoal(isGoal);
         return copy;
     }
 }

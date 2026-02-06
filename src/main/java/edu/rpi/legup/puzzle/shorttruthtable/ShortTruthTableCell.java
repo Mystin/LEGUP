@@ -119,6 +119,7 @@ public class ShortTruthTableCell extends GridCell<ShortTruthTableCellType> {
         copy.setIndex(index);
         copy.setModifiable(isModifiable);
         copy.setGiven(isGiven);
+        copy.setGoal(isGoal);
         return copy;
     }
 
