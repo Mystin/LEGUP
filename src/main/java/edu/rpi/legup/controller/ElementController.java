@@ -156,7 +156,6 @@ public class ElementController
     public void mouseEntered(MouseEvent e) {
         boardView.setFocusable(true);
         boardView.requestFocusInWindow();
-        mouseMoved(e);
     }
 
     /**
@@ -188,7 +187,9 @@ public class ElementController
      * @param e the event to be processed
      */
     @Override
-    public void mouseDragged(MouseEvent e) {}
+    public void mouseDragged(MouseEvent e) {
+        updateHover(e.getPoint());
+    }
 
     /**
      * Invoked when the mouse moved
@@ -197,6 +198,15 @@ public class ElementController
      */
     @Override
     public void mouseMoved(MouseEvent e) {
+        updateHover(e.getPoint());
+    }
+
+    /**
+     * Updates which element the hover is being applied to.
+     *
+     * @param point Location of the cursor.
+     */
+    private void updateHover(Point point) {
         BoardView boardView = getInstance().getLegupUI().getBoardView();
         if (boardView == null) {
             boardView = getInstance().getLegupUI().getEditorBoardView();
@@ -207,9 +217,10 @@ public class ElementController
         }
         TreeElement treeElement = boardView.getTreeElement();
         Board board = boardView.getBoard();
-        ElementView elementView = boardView.getElement(e.getPoint());
+        ElementView elementView = boardView.getElement(point);
         ElementSelection selection = boardView.getSelection();
         String error = null;
+
         if (elementView != null && elementView != selection.getHover()) {
             selection.newHover(elementView);
             if (LegupPreferences.getInstance().getUserPrefAsBool(LegupPreferences.SHOW_MISTAKES)) {
