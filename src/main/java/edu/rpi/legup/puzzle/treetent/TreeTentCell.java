@@ -54,4 +54,7 @@ public class TreeTentCell extends GridCell<TreeTentType> {
         copy.setGoal(isGoal);
         return copy;
     }
+
+    @Override
+    public boolean isKnown() {return !(data == TreeTentType.UNKNOWN);}
 }

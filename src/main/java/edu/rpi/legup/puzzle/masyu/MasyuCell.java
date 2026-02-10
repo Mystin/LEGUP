@@ -22,4 +22,8 @@ public class MasyuCell extends GridCell<MasyuType> {
         copy.setGoal(isGoal);
         return copy;
     }
+
+    @Override
+    public boolean isKnown() {return !(data == MasyuType.UNKNOWN);}
+
 }

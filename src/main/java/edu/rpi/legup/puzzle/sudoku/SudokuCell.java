@@ -90,4 +90,7 @@ public class SudokuCell extends GridCell<Integer> {
             this.data = 0;
         }
     }
+
+    @Override
+    public boolean isKnown() {return !(data == 0);}
 }

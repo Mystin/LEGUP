@@ -85,4 +85,7 @@ public class StarBattleCell extends GridCell<Integer> {
         copy.setGoal(isGoal);
         return copy;
     }
+
+    @Override
+    public boolean isKnown() {return !(data == -3);}
 }
