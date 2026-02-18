@@ -77,8 +77,10 @@ public class Goal {
         if (goalCell == null) { throw new IllegalArgumentException("Cell is not a goal condition."); }
         String text = "Prove cell ";
         return switch(goalType) {
-            case GoalType.PROVE_CELL_MUST_BE -> text + "must be " + goalCell.describeState() + ".";
-            case GoalType.PROVE_CELL_MIGHT_NOT_BE -> text + "might not be " + goalCell.describeState() + ".";
+            case GoalType.PROVE_CELL_MUST_BE -> text + "must be "
+                    + goalCell.describeState(false) + ".";
+            case GoalType.PROVE_CELL_MIGHT_NOT_BE -> text + "might not be "
+                    + goalCell.describeState(false) + ".";
             case GoalType.PROVE_SINGLE_CELL_VALUE -> text + "has only one possible value.";
             case GoalType.PROVE_MULTIPLE_CELL_VALUE -> text + "has multiple possible values.";
             default -> null;
@@ -146,7 +148,7 @@ public class Goal {
         TreeMap<String, ArrayList<GridCell>> cellsByState = new TreeMap<>();
 
         for (GridCell cell : cellList) {
-            String state = cell.describeState();
+            String state = cell.describeState(false);
             if (!cellsByState.containsKey(state)) {
                 cellsByState.put(state, new ArrayList<>());
             }
@@ -176,7 +178,8 @@ public class Goal {
             if (delimiter) { text += " and "; }
             delimiter = true;
             text += (state.getValue().size() > 1 ? "cells " : "cell ");
-            text += concatCellLocs(state.getValue()) + condition + state.getKey();
+            text += concatCellLocs(state.getValue()) + condition
+                    + state.getValue().getFirst().describeState(state.getValue().size() > 1);
         }
         return text + ".";
     }
