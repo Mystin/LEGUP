@@ -26,13 +26,17 @@ import edu.rpi.legup.ui.proofeditorui.treeview.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * The ElementController class manages UI interactions related to elements in a {@link BoardView}.
+ * It handles mouse events, key events, and actions related to element selection and manipulation
+ */
 public class ElementController
         implements MouseListener, MouseMotionListener, ActionListener, KeyListener {
     protected BoardView boardView;
     private Element selectedElement;
 
     /**
-     * ElementController Constructor controller to handles ui events associated interacting with a
+     * ElementController Constructor controller to handle ui events associated interacting with a
      * {@link BoardView}
      */
     public ElementController() {
@@ -86,6 +90,7 @@ public class ElementController
         if (boardView == null) {
             boardView = getInstance().getLegupUI().getEditorBoardView();
         }
+
         Board board = boardView.getBoard();
         ElementView elementView = boardView.getElement(e.getPoint());
         TreeViewSelection selection = null;
@@ -137,17 +142,8 @@ public class ElementController
         if (this.boardView.getBoard() instanceof TreeTentBoard) {
             scaledPoint.setLocation(scaledPoint.getX() - 1, scaledPoint.getY() - 1);
         }
-        System.out.printf(
-                "selected Element is NOT null, attempting to change board at (%d, %d)\n",
-                scaledPoint.x, scaledPoint.y);
-        //            System.out.println("Before: " + b.getCell(scaledPoint.x,
-        // scaledPoint.y).getData());
+
         b.setCell(scaledPoint.x, scaledPoint.y, this.selectedElement, e);
-        //            System.out.println("After: " + b.getCell(scaledPoint.x,
-        // scaledPoint.y).getData());
-        //        } else {
-        //            System.out.println("selected Element is null!");
-        //        }
         boardView.repaint();
     }
 
@@ -160,39 +156,6 @@ public class ElementController
     public void mouseEntered(MouseEvent e) {
         boardView.setFocusable(true);
         boardView.requestFocusInWindow();
-        TreeElement treeElement = boardView.getTreeElement();
-        DynamicView dynamicView = getInstance().getLegupUI().getDynamicBoardView();
-        BoardView boardView = getInstance().getLegupUI().getBoardView();
-        if (boardView == null) {
-            boardView = getInstance().getLegupUI().getEditorBoardView();
-        }
-        if (dynamicView == null) {
-            dynamicView = getInstance().getLegupUI().getEditorDynamicBoardView();
-        }
-        Board board = boardView.getBoard();
-        ElementView elementView = boardView.getElement(e.getPoint());
-        ElementSelection selection = boardView.getSelection();
-        String error = null;
-        if (elementView != null) {
-            selection.newHover(elementView);
-            if (LegupPreferences.LegupPreference.SHOW_MISTAKES.asBoolean()) {
-                PuzzleElement element = elementView.getPuzzleElement();
-                if (treeElement != null
-                        && treeElement.getType() == TreeElementType.TRANSITION
-                        && board.getModifiedData().contains(element)) {
-                    TreeTransition transition = (TreeTransition) treeElement;
-                    if (transition.isJustified() && !transition.isCorrect()) {
-                        error = transition.getRule().checkRuleAt(transition, element);
-                    }
-                }
-                if (error != null) {
-                    dynamicView.updateError(error);
-                } else {
-                    dynamicView.resetStatus();
-                }
-            }
-            boardView.repaint();
-        }
     }
 
     /**
@@ -211,8 +174,7 @@ public class ElementController
         if (dynamicView == null) {
             dynamicView = getInstance().getLegupUI().getEditorDynamicBoardView();
         }
-        ElementView element = boardView.getElement(e.getPoint());
-        if (element != null) {
+        if (boardView.getSelection().getHover() != null) {
             boardView.getSelection().clearHover();
             dynamicView.resetStatus();
             boardView.repaint();
@@ -225,7 +187,9 @@ public class ElementController
      * @param e the event to be processed
      */
     @Override
-    public void mouseDragged(MouseEvent e) {}
+    public void mouseDragged(MouseEvent e) {
+        updateHover(e.getPoint());
+    }
 
     /**
      * Invoked when the mouse moved
@@ -234,19 +198,29 @@ public class ElementController
      */
     @Override
     public void mouseMoved(MouseEvent e) {
+        updateHover(e.getPoint());
+    }
+
+    /**
+     * Updates which element the hover is being applied to.
+     *
+     * @param point Location of the cursor.
+     */
+    private void updateHover(Point point) {
         BoardView boardView = getInstance().getLegupUI().getBoardView();
         if (boardView == null) {
             boardView = getInstance().getLegupUI().getEditorBoardView();
         }
-        Board board = boardView.getBoard();
-        TreeElement treeElement = boardView.getTreeElement();
         DynamicView dynamicView = getInstance().getLegupUI().getDynamicBoardView();
         if (dynamicView == null) {
             dynamicView = getInstance().getLegupUI().getEditorDynamicBoardView();
         }
-        ElementView elementView = boardView.getElement(e.getPoint());
+        TreeElement treeElement = boardView.getTreeElement();
+        Board board = boardView.getBoard();
+        ElementView elementView = boardView.getElement(point);
         ElementSelection selection = boardView.getSelection();
         String error = null;
+
         if (elementView != null && elementView != selection.getHover()) {
             selection.newHover(elementView);
             if (LegupPreferences.LegupPreference.SHOW_MISTAKES.asBoolean()) {

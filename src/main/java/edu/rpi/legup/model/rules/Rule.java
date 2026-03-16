@@ -7,9 +7,18 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+/**
+ * Abstract base class for defining rules. This class encapsulates the common functionality and
+ * attributes of all rules, including rule identification, description, image handling, and
+ * validation logic. Subclasses must provide implementations for specific rule checking logic.
+ */
 @RegisterRule
 public abstract class Rule {
+    private static final Logger LOGGER = LogManager.getLogger(Rule.class.getName());
+
     protected String ruleID;
     protected String ruleName;
     protected String description;
@@ -93,9 +102,11 @@ public abstract class Rule {
             int height =
                     (int) (100 * ((double) this.image.getIconHeight() / this.image.getIconWidth()));
             if (height == 0) {
-                System.out.println("height is 0 error");
-                System.out.println("height: " + this.image.getIconHeight());
-                System.out.println("width:  " + this.image.getIconWidth());
+                LOGGER.error("height is 0 error");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("height: {}", this.image.getIconHeight());
+                    LOGGER.debug("width:  {}", this.image.getIconWidth());
+                }
                 return;
             }
             BufferedImage bimage = new BufferedImage(100, height, BufferedImage.TYPE_INT_RGB);
@@ -159,6 +170,11 @@ public abstract class Rule {
         return ruleType;
     }
 
+    /**
+     * Gets the message indicating an invalid use of the rule.
+     *
+     * @return the invalid use message
+     */
     public String getInvalidUseOfRuleMessage() {
         return this.INVALID_USE_MESSAGE;
     }

@@ -5,8 +5,12 @@ import edu.rpi.legup.ui.WrapLayout;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class ElementPanel extends JPanel {
+    private static final Logger LOGGER = LogManager.getLogger(ElementPanel.class.getName());
+
     protected ImageIcon icon;
     protected String name;
     protected String toolTip;
@@ -20,17 +24,21 @@ public abstract class ElementPanel extends JPanel {
         setLayout(new WrapLayout());
     }
 
-    public void setElements(List<? extends Element> elements) {
+    public int setElements(List<? extends Element> elements) {
         this.elements = elements;
         clearButtons();
 
         elementButtons = new ElementButton[elements.size()];
-        System.out.println("adding " + elements.size() + " elements to panel");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("adding {} elements to panel", elements.size());
+        }
         for (int i = 0; i < elements.size(); i++) {
             Element element = elements.get(i);
             elementButtons[i] = new ElementButton(element);
             elementFrame.getButtonGroup().add(elementButtons[i]);
-            System.out.printf("added button: %d, element %s\n", i, element.getElementName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("added button: {}, element {}\n", i, element.getElementName());
+            }
 
             elementButtons[i].setToolTipText(
                     element.getElementName() + ": " + element.getDescription());
@@ -38,6 +46,7 @@ public abstract class ElementPanel extends JPanel {
             add(elementButtons[i]);
         }
         revalidate();
+        return elements.size();
     }
 
     protected void clearButtons() {

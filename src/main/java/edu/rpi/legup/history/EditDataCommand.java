@@ -10,9 +10,16 @@ import edu.rpi.legup.model.tree.*;
 import edu.rpi.legup.ui.boardview.BoardView;
 import edu.rpi.legup.ui.boardview.ElementView;
 import edu.rpi.legup.ui.proofeditorui.treeview.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import javax.swing.*;
 
+/**
+ * The EditDataCommand class represents a command to edit the data of a puzzle element within a tree
+ * transition. It extends PuzzleCommand and provides functionality to execute and undo changes made
+ * to puzzle elements.
+ */
 public class EditDataCommand extends PuzzleCommand {
     private TreeTransition transition;
     private PuzzleElement savePuzzleElement;
@@ -26,7 +33,7 @@ public class EditDataCommand extends PuzzleCommand {
      * EditDataCommand Constructor create a puzzle command for editing a board
      *
      * @param elementView currently selected puzzle puzzleElement view that is being edited
-     * @param selection currently selected tree puzzleElement views that is being edited
+     * @param selection currently selected tree puzzleElement views that are being edited
      * @param event mouse event
      */
     public EditDataCommand(ElementView elementView, TreeViewSelection selection, MouseEvent event) {
@@ -38,7 +45,7 @@ public class EditDataCommand extends PuzzleCommand {
         this.transition = null;
     }
 
-    /** Executes a command */
+    /** Executes the edit data command, modifying the puzzle element and propagating changes */
     @SuppressWarnings("unchecked")
     @Override
     public void executeCommand() {
@@ -54,16 +61,13 @@ public class EditDataCommand extends PuzzleCommand {
 
         if (treeElement.getType() == TreeElementType.NODE) {
             TreeNode treeNode = (TreeNode) treeElement;
-
             if (treeNode.getChildren().isEmpty()) {
                 if (transition == null) {
                     transition = tree.addNewTransition(treeNode);
                 }
                 puzzle.notifyTreeListeners(listener -> listener.onTreeElementAdded(transition));
             }
-
             board = transition.getBoard();
-
             puzzleElement = board.getPuzzleElement(selectedPuzzleElement);
             savePuzzleElement = puzzleElement.copy();
         } else {
@@ -73,7 +77,6 @@ public class EditDataCommand extends PuzzleCommand {
         }
 
         Board prevBoard = transition.getParents().get(0).getBoard();
-
         boardView.getElementController().changeCell(event, puzzleElement);
 
         if (prevBoard.getPuzzleElement(selectedPuzzleElement).equalsData(puzzleElement)) {
@@ -108,14 +111,11 @@ public class EditDataCommand extends PuzzleCommand {
         Board board = selectedView.getTreeElement().getBoard();
         PuzzleElement selectedPuzzleElement = elementView.getPuzzleElement();
         if (selectedView.getType() == TreeElementType.NODE) {
-
             TreeNodeView nodeView = (TreeNodeView) selectedView;
             if (!nodeView.getChildrenViews().isEmpty()) {
                 return CommandError.UNMODIFIABLE_BOARD.toString();
-            } else {
-                if (!board.getPuzzleElement(selectedPuzzleElement).isModifiable()) {
-                    return CommandError.UNMODIFIABLE_DATA.toString();
-                }
+            } else if (!board.getPuzzleElement(selectedPuzzleElement).isModifiable()) {
+                return CommandError.UNMODIFIABLE_DATA.toString();
             }
         } else {
             TreeTransitionView transitionView = (TreeTransitionView) selectedView;
@@ -124,13 +124,15 @@ public class EditDataCommand extends PuzzleCommand {
             } else {
                 if (!board.getPuzzleElement(selectedPuzzleElement).isModifiable()) {
                     return CommandError.UNMODIFIABLE_DATA.toString();
+                } else if (!board.getPuzzleElement(selectedPuzzleElement).isModifiableCaseRule()) {
+                    return CommandError.UNMODIFIABLE_DATA_CASE_RULE.toString();
                 }
             }
         }
         return null;
     }
 
-    /** Undoes an command */
+    /** Undoes the edit data command, restoring the previous state of the puzzle element. */
     @SuppressWarnings("unchecked")
     @Override
     public void undoCommand() {

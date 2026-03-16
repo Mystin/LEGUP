@@ -14,8 +14,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SatisfyNumberCaseRule extends CaseRule {
+    private static final Logger LOGGER =
+            LogManager.getLogger(SatisfyNumberCaseRule.class.getName());
 
     public SatisfyNumberCaseRule() {
         super(
@@ -47,6 +51,11 @@ public class SatisfyNumberCaseRule extends CaseRule {
      */
     @Override
     public ArrayList<Board> getCases(Board board, PuzzleElement puzzleElement) {
+        ArrayList<Board> cases = new ArrayList<>();
+        if (puzzleElement == null) {
+            return cases;
+        }
+
         LightUpBoard lightUpBoard = (LightUpBoard) board;
         LightUpCell cell = (LightUpCell) puzzleElement;
         Point loc = cell.getLocation();
@@ -96,7 +105,6 @@ public class SatisfyNumberCaseRule extends CaseRule {
             }
         }
 
-        ArrayList<Board> cases = new ArrayList<>();
         if (numNeeded == 0) {
             return cases;
         }
@@ -338,7 +346,9 @@ public class SatisfyNumberCaseRule extends CaseRule {
             // add cells that can light adjacents from any direction
             Point location = cell.getLocation();
             for (int i = location.x; i < puzzleBoard.getWidth(); i++) {
-                System.out.println(i);
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(i);
+                }
                 LightUpCell c = puzzleBoard.getCell(i, location.y);
                 if (c.getType() == LightUpCellType.BLACK || c.getType() == LightUpCellType.NUMBER) {
                     break;

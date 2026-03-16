@@ -21,6 +21,11 @@ import java.util.List;
 
 import static edu.rpi.legup.app.GameBoardFacade.getInstance;
 
+/**
+ * The RuleController class is responsible for handling UI events related to rule buttons in the
+ * RulePanel of the Legup application. It implements ActionListener to process action events
+ * triggered by rule buttons and applies rules to the puzzle accordingly
+ */
 public class RuleController implements ActionListener {
     protected Object lastSource;
 
@@ -62,13 +67,19 @@ public class RuleController implements ActionListener {
                 }
                 else {
                     if (LegupPreferences.LegupPreference.AUTO_GENERATE_CASES.asBoolean()) {
-                        CaseBoard caseBoard = caseRule.getCaseBoard(element.getBoard());
-                        if (caseBoard != null && caseBoard.getCount() > 0) {
-                            puzzle.notifyBoardListeners(
-                                    listener -> listener.onCaseBoardAdded(caseBoard));
-                        }
-                        else {
-                            updateErrorString = "This board cannot be applied with this case rule.";
+                        try { // added try catch for scenarios where rules are cancelled by user ie.
+                            // Skyscraper cellForNumber
+                            CaseBoard caseBoard = caseRule.getCaseBoard(element.getBoard());
+                            if (caseBoard != null && caseBoard.getCount() > 0) {
+                                puzzle.notifyBoardListeners(
+                                        listener -> listener.onCaseBoardAdded(caseBoard));
+                            }
+                            else {
+                                updateErrorString = "This board cannot be applied with this case rule.";
+                            }
+                        } // catch rule was cancelled exception
+                        catch (Exception e) {
+                            updateErrorString = e.getMessage();
                         }
                     }
                     else {

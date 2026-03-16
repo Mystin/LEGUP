@@ -22,6 +22,11 @@ import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.Objects;
 
+/**
+ * The main user interface class for the LEGUP application. This class extends {@link JFrame} and
+ * implements {@link WindowListener} to manage the overall window and provide functionality for
+ * displaying various panels.
+ */
 public class LegupUI extends JFrame implements WindowListener {
     private static final Logger LOGGER = LogManager.getLogger(LegupUI.class.getName());
 
@@ -124,6 +129,7 @@ public class LegupUI extends JFrame implements WindowListener {
         setVisible(true);
     }
 
+    /** Initializes the panels used in the UI. Sets up the layout and adds panels to the window. */
     private void initPanels() {
         window = new JPanel();
         window.setLayout(new BorderLayout());
@@ -135,6 +141,12 @@ public class LegupUI extends JFrame implements WindowListener {
         panels[2] = new PuzzleEditorPanel(this.fileChooser, this, this);
     }
 
+    /**
+     * Displays the specified panel
+     *
+     * @param option the index of the panel to display
+     * @throws InvalidParameterException if the option is out of range
+     */
     protected void displayPanel(int option) {
         if (option > panels.length || option < 0) {
             throw new InvalidParameterException("Invalid option");
@@ -148,27 +160,27 @@ public class LegupUI extends JFrame implements WindowListener {
         repaint();
     }
 
+    /**
+     * Gets the ProofEditorPanel instance
+     *
+     * @return the ProofEditorPanel
+     */
     public ProofEditorPanel getProofEditor() {
         return (ProofEditorPanel) panels[1];
     }
 
+    /**
+     * Gets the PuzzleEditorPanel instance
+     *
+     * @return the PuzzleEditorPanel
+     */
     public PuzzleEditorPanel getPuzzleEditor() {
         return (PuzzleEditorPanel) panels[2];
     }
 
+    /** Repaints the tree view in the proof editor. */
     public void repaintTree() {
         getProofEditor().repaintTree();
-    }
-
-    private void directions() {
-        JOptionPane.showMessageDialog(
-                null,
-                "For every move you make, you must provide a rules for it (located in the Rules"
-                        + " panel).\n"
-                        + "While working on the edu.rpi.legup.puzzle, you may click on the \"Check\""
-                        + " button to test your proof for correctness.",
-                "Directions",
-                JOptionPane.PLAIN_MESSAGE);
     }
 
     public void showStatus(String status, boolean error) {
@@ -183,8 +195,13 @@ public class LegupUI extends JFrame implements WindowListener {
         // TODO: implement
     }
 
-    // ask to edu.rpi.legup.save current proof
-    public boolean noquit(String instr) {
+    /**
+     * Prompts the user to confirm if they want to exit LEGUP
+     *
+     * @param instr the prompt message
+     * @return true if the user chooses not to quit, false otherwise
+     */
+    public boolean exit(String instr) {
         int n = JOptionPane.showConfirmDialog(null, instr, "Confirm", JOptionPane.YES_NO_OPTION);
         return n != JOptionPane.YES_OPTION;
     }
@@ -195,7 +212,7 @@ public class LegupUI extends JFrame implements WindowListener {
 
     public void windowClosing(WindowEvent e) {
         if (GameBoardFacade.getInstance().getHistory().getIndex() > -1) {
-            if (noquit("Exiting LEGUP?")) {
+            if (exit("Exiting LEGUP?")) {
                 this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
             }
             else {
@@ -223,22 +240,47 @@ public class LegupUI extends JFrame implements WindowListener {
     public void windowDeactivated(WindowEvent e) {
     }
 
+    /**
+     * Gets the BoardView instance from the proof editor
+     *
+     * @return the BoardView
+     */
     public BoardView getBoardView() {
         return getProofEditor().getBoardView();
     }
 
+    /**
+     * Gets the BoardView instance from the puzzle editor
+     *
+     * @return the BoardView
+     */
     public BoardView getEditorBoardView() {
         return getPuzzleEditor().getBoardView();
     }
 
+    /**
+     * Gets the DynamicView instance from the proof editor
+     *
+     * @return the DynamicView
+     */
     public DynamicView getDynamicBoardView() {
         return getProofEditor().getDynamicBoardView();
     }
 
+    /**
+     * Gets the DynamicView instance from the puzzle editor.
+     *
+     * @return the DynamicView
+     */
     public DynamicView getEditorDynamicBoardView() {
         return getPuzzleEditor().getDynamicBoardView();
     }
 
+    /**
+     * Gets the TreePanel instance from the proof editor
+     *
+     * @return the TreePanel
+     */
     public TreePanel getTreePanel() {
         return getProofEditor().getTreePanel();
     }
