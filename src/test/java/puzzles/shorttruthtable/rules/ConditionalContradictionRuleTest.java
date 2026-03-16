@@ -31,6 +31,7 @@ public class ConditionalContradictionRuleTest {
      * <p>Asserts that this is a valid application of the rule if and only if both A is true and B
      * is false
      *
+     * @param filePath The file path for test board setup.
      * @throws InvalidFileFormatException
      */
     @Test
@@ -68,6 +69,7 @@ public class ConditionalContradictionRuleTest {
      * <p>Asserts that this is a valid application of the rule if and only if A is false or B is
      * true
      *
+     * @param filePath The file path for test board setup.
      * @throws InvalidFileFormatException
      */
     @Test
@@ -104,6 +106,7 @@ public class ConditionalContradictionRuleTest {
      *
      * <p>Asserts that this is not a valid application of this rule.
      *
+     * @param filePath The file path for test board setup.
      * @throws InvalidFileFormatException
      */
     @Test

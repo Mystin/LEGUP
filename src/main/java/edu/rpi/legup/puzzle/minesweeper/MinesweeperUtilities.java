@@ -1,8 +1,6 @@
 package edu.rpi.legup.puzzle.minesweeper;
 
-import edu.rpi.legup.model.rules.ContradictionRule;
-import edu.rpi.legup.puzzle.minesweeper.rules.TooFewMinesContradictionRule;
-import edu.rpi.legup.puzzle.minesweeper.rules.TooManyMinesContradictionRule;
+import edu.rpi.legup.puzzle.minesweeper.rules.LessBombsThanFlagContradictionRule;
 import java.awt.*;
 import java.util.*;
 import java.util.Objects;
@@ -49,15 +47,15 @@ public final class MinesweeperUtilities {
         return (int)
                 (switch (type) {
                             case UNSET -> stream.filter(MinesweeperTileData::isUnset);
-                            case MINE -> stream.filter(MinesweeperTileData::isMine);
+                            case BOMB -> stream.filter(MinesweeperTileData::isBomb);
                             case EMPTY -> stream.filter(MinesweeperTileData::isEmpty);
-                            case NUMBER -> stream.filter(MinesweeperTileData::isNumber);
+                            case FLAG -> stream.filter(MinesweeperTileData::isFlag);
                         })
                         .count();
     }
 
-    public static int countSurroundingMines(MinesweeperBoard board, MinesweeperCell cell) {
-        return countSurroundingType(board, cell, MinesweeperTileType.MINE);
+    public static int countSurroundingBombs(MinesweeperBoard board, MinesweeperCell cell) {
+        return countSurroundingType(board, cell, MinesweeperTileType.BOMB);
     }
 
     public static int countSurroundingUnset(MinesweeperBoard board, MinesweeperCell cell) {
@@ -68,19 +66,19 @@ public final class MinesweeperUtilities {
         return countSurroundingType(board, cell, MinesweeperTileType.EMPTY);
     }
 
-    public static int countSurroundingNumbers(MinesweeperBoard board, MinesweeperCell cell) {
-        return countSurroundingType(board, cell, MinesweeperTileType.NUMBER);
+    public static int countSurroundingFlags(MinesweeperBoard board, MinesweeperCell cell) {
+        return countSurroundingType(board, cell, MinesweeperTileType.FLAG);
     }
 
     /**
-     * @return how many mines are left that need to be placed around {@code cell} which must be a
+     * @return how many bombs are left that need to be placed around {@code cell} which must be a
      *     flag
      */
-    public int countNeededminesFromNumber(MinesweeperBoard board, MinesweeperCell cell) {
-        if (!cell.getData().isNumber()) {
-            throw new IllegalArgumentException("mines are only needed surrounding numbers");
+    public int countNeededBombsFromFlag(MinesweeperBoard board, MinesweeperCell cell) {
+        if (!cell.getData().isFlag()) {
+            throw new IllegalArgumentException("Bombs are only needed surrounding flags");
         }
-        return cell.getData().data() - countSurroundingMines(board, cell);
+        return cell.getData().data() - countSurroundingBombs(board, cell);
     }
 
     public static boolean hasEmptyAdjacent(MinesweeperBoard board, MinesweeperCell cell) {
@@ -155,80 +153,16 @@ public final class MinesweeperUtilities {
         recurseCombinations(result, curIndex + 1, maxBlack, numBlack, len, workingArray);
     }
 
-    // checks if the current cell is forced to be a mine by checking if any of its adjacent cells
-    // are a number cell that can only be satisfied if the current cell is a mine
-    public static boolean isForcedMine(MinesweeperBoard board, MinesweeperCell cell) {
-        MinesweeperBoard emptyCaseBoard = board.copy();
-        MinesweeperCell emptyCell = (MinesweeperCell) emptyCaseBoard.getPuzzleElement(cell);
-        emptyCell.setCellType(MinesweeperTileData.mine());
-        ArrayList<MinesweeperCell> adjCells = getAdjacentCells(emptyCaseBoard, emptyCell);
-        int numMines;
-        int numUnset;
-        int cellNum;
-        for (MinesweeperCell adjCell : adjCells) {
-            cellNum = adjCell.getTileNumber();
-            if (cellNum <= 0) {
-                continue;
-            }
-            numMines = 0;
-            numUnset = 0;
-            ArrayList<MinesweeperCell> curAdjCells =
-                    MinesweeperUtilities.getAdjacentCells(emptyCaseBoard, adjCell);
-            for (MinesweeperCell curAdjCell : curAdjCells) {
-                if (curAdjCell.getTileType() == MinesweeperTileType.MINE) {
-                    numMines++;
-                }
-                if (curAdjCell.getTileType() == MinesweeperTileType.UNSET) {
-                    numUnset++;
-                }
-            }
-            if (cellNum == numUnset + numMines) {
-                return true;
-            }
-        }
-        return false;
-    }
+    public static boolean isForcedBomb(MinesweeperBoard board, MinesweeperCell cell) {
 
-    // checks if the current cell is forced to be empty by checking if any of its adjacent cells
-    // are a number cell that can only be satisfied if the current cell is empty
-    public static boolean isForcedEmpty(MinesweeperBoard board, MinesweeperCell cell) {
+        LessBombsThanFlagContradictionRule tooManyBombs = new LessBombsThanFlagContradictionRule();
         MinesweeperBoard emptyCaseBoard = board.copy();
         MinesweeperCell emptyCell = (MinesweeperCell) emptyCaseBoard.getPuzzleElement(cell);
         emptyCell.setCellType(MinesweeperTileData.empty());
         ArrayList<MinesweeperCell> adjCells = getAdjacentCells(emptyCaseBoard, emptyCell);
-        int mineCount;
-        int adjCellNum;
-        int emptyCells = 0;
         for (MinesweeperCell adjCell : adjCells) {
-            mineCount = 0;
-            adjCellNum = adjCell.getTileNumber();
-            if (adjCellNum >= 1) {
-                ArrayList<MinesweeperCell> adjAdjCells = getAdjacentCells(emptyCaseBoard, adjCell);
-                for (MinesweeperCell adjAdjCell : adjAdjCells) {
-                    if (adjAdjCell.getTileType() == MinesweeperTileType.MINE) {
-                        mineCount++;
-                    }
-                }
-                if (mineCount == adjCellNum) {
-                    return true;
-                }
-            } else {
-                emptyCells++;
-            }
-        }
-        return false;
-        // return emptyCells == adjCells.size(); return this iff IsolateMine is a rule
-    }
-
-    public static boolean checkBoardForContradiction(MinesweeperBoard board) {
-        ContradictionRule tooManyMines = new TooManyMinesContradictionRule();
-        ContradictionRule tooFewMines = new TooFewMinesContradictionRule();
-        for (int i = 0; i < board.getWidth(); i++) {
-            for (int j = 0; j < board.getHeight(); j++) {
-                if (tooManyMines.checkContradictionAt(board, board.getCell(i, j)) == null
-                        || tooFewMines.checkContradictionAt(board, board.getCell(i, j)) == null) {
-                    return true;
-                }
+            if (tooManyBombs.checkContradictionAt(emptyCaseBoard, adjCell) == null) {
+                return true;
             }
         }
         return false;

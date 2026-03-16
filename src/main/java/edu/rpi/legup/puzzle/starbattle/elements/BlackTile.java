@@ -1,13 +1,13 @@
 package edu.rpi.legup.puzzle.starbattle.elements;
 
-import edu.rpi.legup.model.elements.PlaceableElement;
+import edu.rpi.legup.model.elements.NonPlaceableElement;
 
-public class BlackTile extends PlaceableElement {
+public class BlackTile extends NonPlaceableElement {
     public BlackTile() {
         super(
                 "STBL-PLAC-0002",
-                "Empty Tile",
+                "Black Tile",
                 "The black tile that shows where you cannot place a star",
-                "edu/rpi/legup/images/lightup/empty.gif");
+                "edu/rpi/legup/images/lightup/black.gif");
     }
 }

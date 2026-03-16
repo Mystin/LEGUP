@@ -7,11 +7,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class SkyscrapersBoard extends GridBoard {
-    private static final Logger LOGGER = LogManager.getLogger(SkyscrapersBoard.class.getName());
 
     private ArrayList<SkyscrapersClue> eastClues;
     // EAST clues
@@ -190,12 +187,10 @@ public class SkyscrapersBoard extends GridBoard {
     public void printBoard() {
         for (int i = 0; i < this.dimension.height; i++) {
             for (SkyscrapersCell cell : this.getRowCol(i, SkyscrapersType.ANY, true)) {
-                if (LOGGER.isDebugEnabled()) {
-                    if (cell.getType() == SkyscrapersType.Number) {
-                        LOGGER.debug("{} ", cell.getData());
-                    } else {
-                        LOGGER.debug(0 + " ");
-                    }
+                if (cell.getType() == SkyscrapersType.Number) {
+                    System.out.print(cell.getData() + " ");
+                } else {
+                    System.out.print(0 + " ");
                 }
             }
             System.out.println();
@@ -214,7 +209,7 @@ public class SkyscrapersBoard extends GridBoard {
         SkyscrapersClue clue = this.getClue(x, y);
         if (e == null) return;
         if (clue != null) {
-            if (!e.getElementID().equals("SKYS-ELEM-0001")) {
+            if (!e.getElementID().equals("SKYS-UNPL-0003")) {
                 return;
             }
 
@@ -222,10 +217,10 @@ public class SkyscrapersBoard extends GridBoard {
                 if (clue.getData() < dimension.height) {
                     clue.setData(clue.getData() + 1);
                 } else {
-                    clue.setData(1);
+                    clue.setData(0);
                 }
             } else {
-                if (clue.getData() > 1) {
+                if (clue.getData() > 0) {
                     clue.setData(clue.getData() - 1);
                 } else {
                     clue.setData(dimension.height);

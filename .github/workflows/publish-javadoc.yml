@@ -19,6 +19,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           javadoc-branch: javadoc
           java-version: 21
-          java-distribution: temurin
+          distribution: temurin
           target-folder: docs
           project: gradle

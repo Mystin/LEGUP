@@ -82,6 +82,7 @@ public class NurikabeImporter extends PuzzleImporter {
             if (nurikabeBoard == null) {
                 throw new InvalidFileFormatException("nurikabe Importer: invalid board dimensions");
             }
+
             int width = nurikabeBoard.getWidth();
             int height = nurikabeBoard.getHeight();
 
@@ -103,7 +104,7 @@ public class NurikabeImporter extends PuzzleImporter {
                     if (nurikabeBoard.getCell(x, y) == null) {
                         NurikabeCell cell =
                                 new NurikabeCell(NurikabeType.UNKNOWN.toValue(), new Point(x, y));
-                        cell.setIndex(y * width + x);
+                        cell.setIndex(y * height + x);
                         cell.setModifiable(true);
                         nurikabeBoard.setCell(x, y, cell);
                     }

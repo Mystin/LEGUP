@@ -1,12 +1,12 @@
 package edu.rpi.legup.puzzle.minesweeper.elements;
 
-import edu.rpi.legup.model.elements.PlaceableElement;
+import edu.rpi.legup.model.elements.NonPlaceableElement;
 
-public class UnsetTile extends PlaceableElement {
+public class UnsetTile extends NonPlaceableElement {
 
     public UnsetTile() {
         super(
-                "MINE-UNPL-0000",
+                "MINE-UNPL-0002",
                 "Unset",
                 "An unset tile",
                 "edu/rpi/legup/images/minesweeper/tiles/Unset.png");

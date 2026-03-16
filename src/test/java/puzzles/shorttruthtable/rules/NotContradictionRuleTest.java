@@ -31,6 +31,7 @@ public class NotContradictionRuleTest {
      * <p>Asserts that this is a valid application of the rule if and only if A and B are both true
      * or are both false.
      *
+     * @param filePath The file path for test board setup.
      * @throws InvalidFileFormatException
      */
     @Test

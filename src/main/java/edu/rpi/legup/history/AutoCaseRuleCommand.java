@@ -13,11 +13,6 @@ import edu.rpi.legup.ui.proofeditorui.treeview.*;
 import java.awt.event.MouseEvent;
 import java.util.*;
 
-/**
- * The AutoCaseRuleCommand class represents a command to automatically apply a case rule to a
- * selected tree node in the proof tree. It extends the PuzzleCommand class to handle case rule
- * application and undo operation.
- */
 public class AutoCaseRuleCommand extends PuzzleCommand {
 
     private ElementView elementView;
@@ -51,10 +46,7 @@ public class AutoCaseRuleCommand extends PuzzleCommand {
         this.caseTrans = new ArrayList<>();
     }
 
-    /**
-     * Executes the command to apply the case rule to the selected tree node. Updates the puzzle and
-     * tree view accordingly.
-     */
+    /** Executes an command */
     @Override
     public void executeCommand() {
         Tree tree = getInstance().getTree();
@@ -68,7 +60,7 @@ public class AutoCaseRuleCommand extends PuzzleCommand {
                     caseRule.getCases(caseBoard.getBaseBoard(), elementView.getPuzzleElement());
             for (Board board : cases) {
                 final TreeTransition transition = (TreeTransition) tree.addTreeElement(node);
-                // board.setModifiable(false);
+                board.setModifiable(false);
                 transition.setBoard(board);
                 transition.setRule(caseRule);
                 transition.setSelection(elementView.getPuzzleElement().copy());
@@ -137,10 +129,7 @@ public class AutoCaseRuleCommand extends PuzzleCommand {
         return null;
     }
 
-    /**
-     * Undoes the command by removing the applied case rules from the tree node. Updates the puzzle
-     * and tree view accordingly
-     */
+    /** Undoes an command */
     @Override
     public void undoCommand() {
         Puzzle puzzle = GameBoardFacade.getInstance().getPuzzleModule();

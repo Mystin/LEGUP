@@ -25,34 +25,34 @@ public class MinesweeperCell extends GridCell<MinesweeperTileData> {
     @Contract(pure = false)
     /** Sets this cell's data to the value specified by {@link Element#getElementID()} */
     public void setType(@NotNull Element element, @NotNull MouseEvent event) {
-        switch (element.getElementName()) {
-            case "Mine" -> {
-                this.setCellType(MinesweeperTileData.mine());
+        switch (element.getElementID()) {
+            case MinesweeperElementIdentifiers.BOMB -> {
+                this.data = MinesweeperTileData.bomb();
+                break;
             }
-            case "Empty" -> {
-                this.setCellType(MinesweeperTileData.empty());
-            }
-            case "Number" -> {
+            case MinesweeperElementIdentifiers.FLAG -> {
                 final int currentData = super.data.data();
                 switch (event.getButton()) {
                     case MouseEvent.BUTTON1 -> {
-                        if (currentData >= 8 || currentData <= 0) {
-                            this.setCellType(MinesweeperTileData.number(1));
+                        if (currentData >= 8) {
+                            this.data = MinesweeperTileData.empty();
                             return;
                         }
-                        this.setCellType(MinesweeperTileData.number(currentData + 1));
+                        this.data = MinesweeperTileData.flag(currentData + 1);
+                        return;
                     }
                     case MouseEvent.BUTTON2, MouseEvent.BUTTON3 -> {
-                        if (currentData <= 1 || currentData >= 9) {
-                            this.setCellType(MinesweeperTileData.number(8));
+                        if (currentData <= 0) {
+                            this.data = MinesweeperTileData.empty();
                             return;
                         }
-                        this.setCellType(MinesweeperTileData.number(currentData - 1));
+                        this.data = MinesweeperTileData.flag(currentData - 1);
+                        return;
                     }
                 }
             }
             default -> {
-                this.setCellType(MinesweeperTileData.unset());
+                this.data = MinesweeperTileData.empty();
             }
         }
     }

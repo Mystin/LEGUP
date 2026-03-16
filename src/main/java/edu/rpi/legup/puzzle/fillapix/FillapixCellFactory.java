@@ -43,7 +43,7 @@ public class FillapixCellFactory extends ElementFactory {
             }
 
             FillapixCell cell = new FillapixCell(value, new Point(x, y));
-            cell.setIndex(y * width + x);
+            cell.setIndex(y * height + x);
             return cell;
         } catch (NumberFormatException e) {
             throw new InvalidFileFormatException(

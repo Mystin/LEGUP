@@ -41,7 +41,7 @@ public class BattleshipCellFactory extends ElementFactory {
 
                 BattleshipCell cell =
                         new BattleshipCell(BattleshipType.getType(value), new Point(x, y));
-                cell.setIndex(y * width + x);
+                cell.setIndex(y * height + x);
                 return cell;
             } else {
                 throw new InvalidFileFormatException(

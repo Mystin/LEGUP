@@ -93,8 +93,6 @@ public class BiconditionalCaseRuleTest {
     /**
      * Given a statement A -> B where ^ is true, tests this case rule by ensuring that two branches
      * are created: one where A is false and one where B is true.
-     *
-     * @throws InvalidFileFormatException
      */
     @Test
     public void SimpleStatement1TrueTest() throws InvalidFileFormatException {
@@ -104,8 +102,6 @@ public class BiconditionalCaseRuleTest {
     /**
      * Given a statement ~(A|B) -> (C^D) where the -> is true, tests this case rule by ensuring that
      * two branches are created: one where ~ is false and one where ^ is true.
-     *
-     * @throws InvalidFileFormatException
      */
     @Test
     public void ComplexStatement1TrueTest() throws InvalidFileFormatException {
@@ -178,8 +174,6 @@ public class BiconditionalCaseRuleTest {
     /**
      * Given a statement A -> B where -> is false, tests this case rule by ensuring that one branch
      * is created where A is true and B is false.
-     *
-     * @throws InvalidFileFormatException
      */
     @Test
     public void SimpleStatement1FalseTest() throws InvalidFileFormatException {
@@ -189,8 +183,6 @@ public class BiconditionalCaseRuleTest {
     /**
      * Given a statement ~(A|B) -> (C^D) where -> is true, tests this case rule by ensuring that one
      * branch is created where ~ is true and ^ is false.
-     *
-     * @throws InvalidFileFormatException
      */
     @Test
     public void ComplexStatement1FalseTest() throws InvalidFileFormatException {

@@ -5,12 +5,9 @@ import edu.rpi.legup.model.RegisterPuzzle;
 import edu.rpi.legup.model.gameboard.Board;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.model.rules.ContradictionRule;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @RegisterPuzzle
 public class LightUp extends Puzzle {
-    private static final Logger LOGGER = LogManager.getLogger(LightUp.class.getName());
 
     public LightUp() {
         super();
@@ -50,7 +47,7 @@ public class LightUp extends Puzzle {
      * @return true if the given dimensions are valid for Light Up, false otherwise
      */
     public boolean isValidDimensions(int rows, int columns) {
-        return rows >= 0 && columns >= 0;
+        return rows > 0 && columns > 0;
     }
 
     /**
@@ -66,9 +63,7 @@ public class LightUp extends Puzzle {
 
         for (ContradictionRule rule : contradictionRules) {
             if (rule.checkContradiction(lightUpBoard) == null) {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace(rule.getRuleName());
-                }
+                System.out.println(rule.getRuleName());
                 return false;
             }
         }

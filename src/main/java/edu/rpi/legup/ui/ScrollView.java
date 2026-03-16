@@ -6,11 +6,6 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import javax.swing.*;
 
-/**
- * ScrollView extends {@link JScrollPane} to provide a customizable view with zoom and scroll
- * capabilities. It uses a {@link ZoomablePane} as the canvas and allows for zooming and scrolling
- * with respect to the canvas content.
- */
 public class ScrollView extends JScrollPane {
     private static final Logger LOGGER = Logger.getLogger(ScrollView.class.getName());
 
@@ -122,8 +117,8 @@ public class ScrollView extends JScrollPane {
      */
     public void updatePosition(Point point, double magnification) {
         Point position = viewport.getViewPosition();
-        position.x = (int) ((double) (point.x + position.x) * magnification - point.x + 0.5);
-        position.y = (int) ((double) (point.y + position.y) * magnification - point.y + 0.5);
+        position.x = (int) ((double) (point.x + position.x) * magnification - point.x + 0.0);
+        position.y = (int) ((double) (point.y + position.y) * magnification - point.y + 0.0);
         viewport.setViewPosition(position);
     }
 
@@ -133,7 +128,7 @@ public class ScrollView extends JScrollPane {
      * @param n level of zoom - n less than 0 is zoom in, n greater than 0 is zoom out
      * @param point position to zoom in on
      */
-    public void zoom(double n, Point point) {
+    public void zoom(int n, Point point) {
         // if no Point is given, keep current center
         if (point == null) {
             point =
@@ -141,11 +136,11 @@ public class ScrollView extends JScrollPane {
                             viewport.getWidth() / 2 + viewport.getX(),
                             viewport.getHeight() / 2 + viewport.getY());
         }
-
+        // magnification level
+        double mag = (double) n * 1.05;
         // zoom in
         if (n < 0) {
-            // magnification level
-            double mag = 1.0 + Math.sqrt(-n) * 0.1;
+            mag = -mag;
             // check zoom bounds
             if (scale * mag > maxScale) {
                 mag = maxScale / scale;
@@ -156,8 +151,7 @@ public class ScrollView extends JScrollPane {
             updatePosition(point, mag);
             // zoom out
         } else {
-            // magnification level
-            double mag = 1 / (1.0 + Math.sqrt(n) * 0.1);
+            mag = 1 / mag;
             // check zoom bounds
             if (scale * mag < minScale) {
                 mag = minScale / scale;
@@ -171,12 +165,6 @@ public class ScrollView extends JScrollPane {
         revalidate();
     }
 
-    /**
-     * Adjusts the zoom level to the given scale and centers the viewport on the current center
-     * point
-     *
-     * @param newScale the new scale to set
-     */
     public void zoomTo(double newScale) {
         // check zoom bounds
         if (newScale < minScale) {
@@ -253,8 +241,8 @@ public class ScrollView extends JScrollPane {
      *
      * @return zoom scale
      */
-    public double getZoom() {
-        return scale * 100.0;
+    public int getZoom() {
+        return (int) (scale * 100.0);
     }
 
     /**
@@ -294,11 +282,6 @@ public class ScrollView extends JScrollPane {
         updateSize();
     }
 
-    /**
-     * Gets the canvas for this {@code ScrollView}
-     *
-     * @return the ZoomablePane instance used as the canvas
-     */
     public ZoomablePane getCanvas() {
         return canvas;
     }

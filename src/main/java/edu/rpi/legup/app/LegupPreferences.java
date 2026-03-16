@@ -8,11 +8,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 
-/**
- * {@code LegupPreferences} is a class responsible for managing user preferences within the
- * application. It uses Java's Preferences API to store and retrieve preferences, and it provides
- * methods for accessing and updating these preferences.
- */
 public class LegupPreferences {
 
     private static LegupPreferences instance;
@@ -138,10 +133,9 @@ public class LegupPreferences {
     }
 
     /**
-     * Gets the legup preferences singleton instance This method ensures that only one instance of
-     * LegupPreferences exists
+     * Gets the legup preferences singleton instance.
      *
-     * @return the singleton instance of LegupPreferences
+     * @return legup preferences
      */
     public static LegupPreferences getInstance() {
         if (instance == null) {
@@ -151,10 +145,10 @@ public class LegupPreferences {
     }
 
     /**
-     * Private constructor to prevent instantiation from outside the class Use {@link
-     * #getInstance()} to access the singleton instance
+     * Private LegupPreferences Singleton Constructor
      */
-    private LegupPreferences() {}
+    private LegupPreferences() {
+    }
 
     /**
      * Gets the user preference by the string key
@@ -167,7 +161,7 @@ public class LegupPreferences {
     }
 
     /**
-     * Sets the user preference for the specified key to the provided value
+     * Gets the user preference by the string key, value pair
      *
      * @param preference the preference to change
      * @param value      value of the preference
@@ -181,20 +175,10 @@ public class LegupPreferences {
         return preference.asBoolean("Cannot get user preference - " + preference.id());
     }
 
-    /**
-     * Gets the saved path
-     *
-     * @return the saved path as a String
-     */
     public String getSavedPath() {
         return savedPath;
     }
 
-    /**
-     * Sets the saved path to the specified value
-     *
-     * @param path the new saved path
-     */
     public void setSavedPath(String path) {
         savedPath = path;
     }

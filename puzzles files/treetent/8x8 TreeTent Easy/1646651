@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Legup version="3.0.0">
     <saved/>
-    <puzzle name="TreeTent" tag="1646651">
+    <puzzle name="TreeTent">
         <board height="8" width="8">
             <cells>
                 <cell value="1" x="0" y="1"/>
@@ -38,5 +39,5 @@
             </axis>
         </board>
     </puzzle>
-    <solved isSolved="-2010495071" lastSaved="2024-11-08 17:14:34"/>
+    <solved isSolved="false" lastSaved="2024-03-12 17:29:25"/>
 </Legup>

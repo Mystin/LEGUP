@@ -4,11 +4,8 @@ import edu.rpi.legup.model.Puzzle;
 import edu.rpi.legup.model.gameboard.Board;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.model.rules.ContradictionRule;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class Skyscrapers extends Puzzle {
-    private static final Logger LOGGER = LogManager.getLogger(Skyscrapers.class.getName());
 
     public Skyscrapers() {
         super();
@@ -49,7 +46,7 @@ public class Skyscrapers extends Puzzle {
      * @return true if the given dimensions are valid for Skyscrapers, false otherwise
      */
     public boolean isValidDimensions(int rows, int columns) {
-        return rows >= 3 && rows == columns;
+        return rows >= 4 && rows == columns;
     }
 
     /**
@@ -64,9 +61,7 @@ public class Skyscrapers extends Puzzle {
 
         for (ContradictionRule rule : contradictionRules) {
             if (rule.checkContradiction(SkyscraperBoard) == null) {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace(rule.getRuleName());
-                }
+                System.out.println(rule.getRuleName());
                 return false;
             }
         }
