@@ -1,5 +1,6 @@
 package edu.rpi.legup.model.rules;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import edu.rpi.legup.app.LegupPreferences;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.model.tree.TreeTransition;
@@ -89,29 +90,37 @@ public abstract class Rule {
     /** Loads the image file */
     public void loadImage() {
         if (imageName != null) {
-            String name = imageName;
-            LegupPreferences prefs = LegupPreferences.getInstance();
-            if (name.contains("shorttruthtable") && LegupPreferences.colorBlind()) {
-                name = name.replace("ruleimages", "ruleimages_cb");
-            }
-            this.image = new ImageIcon(ClassLoader.getSystemClassLoader().getResource(name));
-            // Resize images to be 100px wide
-            Image image = this.image.getImage();
-            if (this.image.getIconWidth() < 120) return;
-            int height =
-                    (int) (100 * ((double) this.image.getIconHeight() / this.image.getIconWidth()));
-            if (height == 0) {
-                LOGGER.error("height is 0 error");
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("height: {}", this.image.getIconHeight());
-                    LOGGER.debug("width:  {}", this.image.getIconWidth());
+            if (imageName.endsWith(".png") || imageName.endsWith(".jpg") ||
+                    imageName.endsWith(".jpeg") || imageName.endsWith(".gif")) {
+
+                String name = imageName;
+                // Todo: do away with this block once short truth table rule images are svg
+                if (name.contains("shorttruthtable") && LegupPreferences.colorBlind()) {
+                    name = name.replace("ruleimages", "ruleimages_cb");
                 }
-                return;
+                this.image = new ImageIcon(ClassLoader.getSystemClassLoader().getResource(name));
+                // Resize images to be 100px wide
+                Image image = this.image.getImage();
+                if (this.image.getIconWidth() < 120) return;
+                int height =
+                        (int) (100 * ((double) this.image.getIconHeight() / this.image.getIconWidth()));
+                if (height == 0) {
+                    LOGGER.error("height is 0 error");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("height: {}", this.image.getIconHeight());
+                        LOGGER.debug("width:  {}", this.image.getIconWidth());
+                    }
+                    return;
+                }
+                BufferedImage bimage = new BufferedImage(100, height, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g = bimage.createGraphics();
+                g.drawImage(image, 0, 0, 100, height, null);
+                this.image = new ImageIcon(bimage);
+
+            } else if (imageName.endsWith(".svg")) {
+
+                this.image = new FlatSVGIcon(imageName, 100, 100);
             }
-            BufferedImage bimage = new BufferedImage(100, height, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = bimage.createGraphics();
-            g.drawImage(image, 0, 0, 100, height, null);
-            this.image = new ImageIcon(bimage);
         }
     }
 

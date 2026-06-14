@@ -18,7 +18,7 @@ public class BlackBottleNeckDirectRule extends DirectRule {
                 "Black Bottle Neck",
                 "If there is only one path for a black to escape, then those unknowns must be"
                         + " black.",
-                "edu/rpi/legup/images/nurikabe/rules/OneUnknownBlack.png");
+                "edu/rpi/legup/images/nurikabe/rules/BlackBottleNeck.svg");
     }
 
     /**
