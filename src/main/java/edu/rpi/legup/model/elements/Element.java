@@ -3,6 +3,8 @@ package edu.rpi.legup.model.elements;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
+
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,24 +50,32 @@ public abstract class Element {
      */
     private void loadImage() {
         if (imageName != null) {
-            this.image = new ImageIcon(ClassLoader.getSystemClassLoader().getResource(imageName));
-            // Resize images to be 100px wide
-            Image image = this.image.getImage();
-            if (this.image.getIconWidth() < 120) return;
-            int height =
-                    (int) (100 * ((double) this.image.getIconHeight() / this.image.getIconWidth()));
-            if (height == 0) {
-                LOGGER.error("height is 0 error");
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("height: {}", this.image.getIconHeight());
-                    LOGGER.debug("width:  {}", this.image.getIconWidth());
+            if (imageName.endsWith(".png") || imageName.endsWith(".jpg") ||
+                    imageName.endsWith(".jpeg") || imageName.endsWith(".gif")) {
+
+                this.image = new ImageIcon(ClassLoader.getSystemClassLoader().getResource(imageName));
+                // Resize images to be 100px wide
+                Image image = this.image.getImage();
+                if (this.image.getIconWidth() < 120) return;
+                int height =
+                        (int) (100 * ((double) this.image.getIconHeight() / this.image.getIconWidth()));
+                if (height == 0) {
+                    LOGGER.error("height is 0 error");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("height: {}", this.image.getIconHeight());
+                        LOGGER.debug("width:  {}", this.image.getIconWidth());
+                    }
+                    return;
                 }
-                return;
+                BufferedImage bimage = new BufferedImage(100, height, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g = bimage.createGraphics();
+                g.drawImage(image, 0, 0, 100, height, null);
+                this.image = new ImageIcon(bimage);
+                
+            } else if (imageName.endsWith(".svg")) {
+
+                this.image = new FlatSVGIcon(imageName, 100, 100);
             }
-            BufferedImage bimage = new BufferedImage(100, height, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = bimage.createGraphics();
-            g.drawImage(image, 0, 0, 100, height, null);
-            this.image = new ImageIcon(bimage);
         }
     }
 
