@@ -36,6 +36,7 @@ import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.DefaultCaret;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -802,12 +803,13 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
         dynamicBoardView.setBorder(titleBoard);
 
         goalText = new JTextArea();
-        goalText.setRows(2);
+        goalText.setRows(1);
         goalText.setEditable(false);
-        goalText.setOpaque(false);
+        goalText.setOpaque(true);
         goalText.setFocusable(false);
         goalText.setLineWrap(true);
         goalText.setWrapStyleWord(true);
+        ((DefaultCaret) goalText.getCaret()).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         JScrollPane goalPane = new JScrollPane(goalText);
         goalPane.setPreferredSize(new Dimension(0, 50));
         goalPane.setMinimumSize(new Dimension(0, 40));
@@ -815,7 +817,7 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
         CompoundBorder goalBorder =
                 new CompoundBorder(
                         BorderFactory.createTitledBorder("Goal Condition"),
-                        new EmptyBorder(0, 5, 5, 5));
+                        new EmptyBorder(0, 10, 3, 10));
         ((TitledBorder) goalBorder.getOutsideBorder()).setTitleJustification(TitledBorder.CENTER);
         goalPane.setBorder(goalBorder);
 
