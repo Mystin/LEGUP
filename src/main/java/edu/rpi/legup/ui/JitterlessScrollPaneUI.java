@@ -52,14 +52,16 @@ public class JitterlessScrollPaneUI extends FlatScrollPaneUI {
     private void mouseWheelMovedSmooth(MouseWheelEvent e) {
 
         JViewport viewport = scrollpane.getViewport();
-        if (viewport == null)
+        if (viewport == null) {
             return;
+        }
 
         JScrollBar scrollbar = scrollpane.getVerticalScrollBar();
         if (scrollbar == null || !scrollbar.isVisible() || e.isShiftDown()) {
             scrollbar = scrollpane.getHorizontalScrollBar();
-            if (scrollbar == null || !scrollbar.isVisible())
+            if (scrollbar == null || !scrollbar.isVisible()) {
                 return;
+            }
         }
 
         e.consume();
@@ -87,8 +89,9 @@ public class JitterlessScrollPaneUI extends FlatScrollPaneUI {
                 }
 
                 int unitIncrement2 = scrollable.getScrollableUnitIncrement(visibleRect, orientation, 1);
-                if (unitIncrement2 > 0)
+                if (unitIncrement2 > 0) {
                     unitIncrement = Math.min(unitIncrement, unitIncrement2);
+                }
             }
         } else {
 
@@ -109,8 +112,9 @@ public class JitterlessScrollPaneUI extends FlatScrollPaneUI {
         int maxValue = scrollbar.getMaximum() - scrollbar.getModel().getExtent();
         int newValue = Math.max(minValue, Math.min(value + idelta, maxValue));
 
-        if (newValue != value)
+        if (newValue != value) {
             scrollbar.setValue(newValue);
+        }
 
         // Set new sub-pixel offset
         double newFracOffset =

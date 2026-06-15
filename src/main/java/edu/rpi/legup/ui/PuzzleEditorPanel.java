@@ -131,7 +131,7 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
         // Stop caret (and scroll pane) from jumping to bottom of text area when updated
         ((DefaultCaret) goalText.getCaret()).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         // Create and store the scroll pane on the field so it can be reused
-        goalPane = new JScrollPane(goalText);
+        goalPane = new JitterlessScrollPane(goalText);
         // Give the pane a small preferred height so it doesn't collapse in the layout
         goalPane.setPreferredSize(new Dimension(0, 50));
         // Also set a minimum size and reasonable max height to prevent layout collapsing

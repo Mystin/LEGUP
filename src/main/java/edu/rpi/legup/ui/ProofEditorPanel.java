@@ -810,7 +810,7 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
         goalText.setLineWrap(true);
         goalText.setWrapStyleWord(true);
         ((DefaultCaret) goalText.getCaret()).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-        JScrollPane goalPane = new JScrollPane(goalText);
+        JScrollPane goalPane = new JitterlessScrollPane(goalText);
         goalPane.setPreferredSize(new Dimension(0, 50));
         goalPane.setMinimumSize(new Dimension(0, 40));
         goalPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));

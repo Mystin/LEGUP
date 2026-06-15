@@ -19,6 +19,10 @@ public class JitterlessScrollPane extends JScrollPane {
     private double fracOffsetX = 0;
     private double fracOffsetY = 0;
 
+    public JitterlessScrollPane() {
+        super();
+    }
+
     public JitterlessScrollPane(Component view) {
         super(view);
     }
