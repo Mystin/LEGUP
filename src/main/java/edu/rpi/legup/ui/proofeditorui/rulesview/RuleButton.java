@@ -24,12 +24,6 @@ public class RuleButton extends JButton {
         this.setFocusPainted(false);
     }
 
-    // Set custom UI delegation for this element
-    @Override
-    public String getUIClassID() {
-        return "RuleButtonUI";
-    }
-
     /**
      * Gets the Rule from this button
      *
