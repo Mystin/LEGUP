@@ -4,9 +4,16 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 /**
  * The {@code JitterlessScrollPane} class is a {@code JScrollPane} that combats jittering of
@@ -21,15 +28,12 @@ public class JitterlessScrollPane extends JScrollPane {
 
     public JitterlessScrollPane() {
         super();
+        addMouseWheelListener(new PreciseWheelListener());
     }
 
     public JitterlessScrollPane(Component view) {
         super(view);
-    }
-
-    @Override
-    public String getUIClassID() {
-        return "JitterlessScrollPaneUI";
+        addMouseWheelListener(new PreciseWheelListener());
     }
 
     public void setFracOffsetX(double fracOffsetX) {
@@ -83,7 +87,7 @@ public class JitterlessScrollPane extends JScrollPane {
 
             Graphics2D g = (Graphics2D) graphics.create();
 
-            // Get DPI scale from screen
+            // Get graphics environment scale from screen
             AffineTransform scaleDPI = GraphicsEnvironment
                     .getLocalGraphicsEnvironment()
                     .getDefaultScreenDevice()
@@ -100,6 +104,93 @@ public class JitterlessScrollPane extends JScrollPane {
 
             super.paintChildren(g);
             g.dispose();
+        }
+    }
+
+    /**
+     * The {@code PreciseWheelListener} class is used by the {@code JitterlessScrollPane} class
+     * to intercept scrolling events from precise inputs like trackpads and uses them to give
+     * the {@code JitterlessScrollPane} sub-pixel scrolling accuracy and prevent "jumping".
+     */
+    protected class PreciseWheelListener implements MouseWheelListener {
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+
+            // Only intercept scroll wheel events from precise inputs and if enabled
+            if (
+                    isWheelScrollingEnabled() &&
+                            UIManager.getBoolean("ScrollPane.smoothScrolling") &&
+                            e.getPreciseWheelRotation() != e.getWheelRotation() &&
+                            viewport != null
+            ) {
+                // Modified code from com.formdev.flatlaf.ui.FlatScrollPaneUI#mouseWheelMovedSmooth
+                JScrollBar scrollbar = verticalScrollBar;
+                if (scrollbar == null || !scrollbar.isVisible() || e.isShiftDown()) {
+                    scrollbar = horizontalScrollBar;
+                    if (scrollbar == null || !scrollbar.isVisible()) {
+                        return;
+                    }
+                }
+
+                e.consume();
+
+                double rotation = e.getPreciseWheelRotation();
+                int unitIncrement;
+                int orientation = scrollbar.getOrientation();
+                Component view = viewport.getView();
+
+                if (view instanceof Scrollable scrollable) {
+
+                    Rectangle visibleRect = new Rectangle(viewport.getExtentSize());
+                    unitIncrement = scrollable.getScrollableUnitIncrement(visibleRect, orientation, 1);
+
+                    if (unitIncrement > 0) {
+
+                        if (orientation == SwingConstants.VERTICAL) {
+                            visibleRect.y += unitIncrement;
+                            visibleRect.height -= unitIncrement;
+                        } else {
+                            visibleRect.x += unitIncrement;
+                            visibleRect.width -= unitIncrement;
+                        }
+
+                        int unitIncrement2 = scrollable.getScrollableUnitIncrement(visibleRect, orientation, 1);
+                        if (unitIncrement2 > 0) {
+                            unitIncrement = Math.min(unitIncrement, unitIncrement2);
+                        }
+                    }
+                } else {
+
+                    int direction = rotation < 0 ? -1 : 1;
+                    unitIncrement = scrollbar.getUnitIncrement(direction);
+                }
+
+                // Compute new position based on previous sub-pixel offset
+                double delta = rotation * unitIncrement * e.getScrollAmount() +
+                        ((orientation == SwingConstants.VERTICAL) ?
+                                getFracOffsetY() : getFracOffsetX());
+                int idelta = (int) Math.round(delta);
+
+                int value = scrollbar.getValue();
+                int minValue = scrollbar.getMinimum();
+                int maxValue = scrollbar.getMaximum() - scrollbar.getModel().getExtent();
+                int newValue = Math.max(minValue, Math.min(value + idelta, maxValue));
+
+                if (newValue != value) {
+                    scrollbar.setValue(newValue);
+                }
+
+                // Set new sub-pixel offset
+                double newFracOffset =
+                        (value + delta > minValue && value + delta < maxValue) ?
+                                delta - idelta : 0.0;
+                if (orientation == SwingConstants.VERTICAL) {
+                    setFracOffsetY(newFracOffset);
+                } else {
+                    setFracOffsetX(newFracOffset);
+                }
+            }
         }
     }
 }
