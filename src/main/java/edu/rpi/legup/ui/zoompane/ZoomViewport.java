@@ -19,7 +19,9 @@ import java.awt.geom.Rectangle2D;
 import java.beans.BeanProperty;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * The "viewport" through which you can see the underlying {@link ZoomView}. When you pan and zoom, what
@@ -508,14 +510,14 @@ public class ZoomViewport extends JViewport implements Accessible {
      *
      * @param newPeer the viewport's new component peer
      */
-    protected void setPeer(ZoomPeer newPeer) { setView(newPeer); }
+    public void setPeer(ZoomPeer newPeer) { setView(newPeer); }
 
     /**
      * Returns the {@code ZoomViewport}'s component peer or {@code null}.
      *
      * @return this viewport's peer, or {@code null} if none exists
      */
-    protected ZoomPeer getPeer() { return (ZoomPeer) getView(); }
+    public ZoomPeer getPeer() { return (ZoomPeer) getView(); }
 
     /**
      * The component child of {@code ZoomViewport} that acts as a peer to the {@code ZoomView}. It provides
@@ -524,11 +526,19 @@ public class ZoomViewport extends JViewport implements Accessible {
      */
     public class ZoomPeer extends JPanel {
 
+        /** Identifies a component that should be laid out as a notification. */
+        public static final String NOTIFICATION = "NOTIFICATION";
+
+        /**
+         * Mapping of controllers to the {@code MouseInputListeners} installed on this component that create
+         * {@code ControllerMouseEvent}s for the controllers.
+         */
         private final HashMap<ZoomViewController, MouseInputListener> transformers;
 
         public ZoomPeer() {
             setOpaque(false);
             setFocusable(true);
+            setLayout(new ZoomPeerLayout());
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
@@ -680,6 +690,58 @@ public class ZoomViewport extends JViewport implements Accessible {
          */
         public ZoomViewController[] getZoomViewControllers() {
             return transformers.keySet().toArray(new ZoomViewController[0]);
+        }
+
+        /**
+         * Layout manager for {@code ZoomPeer} that lays out components as notifications if they are added
+         * with {@link ZoomPeer#NOTIFICATION}.
+         */
+        private static class ZoomPeerLayout implements LayoutManager {
+
+            /** List of components to lay out as notifications. */
+            private final List<Component> notifications = new ArrayList<>();
+
+            /** X coordinate to place each notification at. */
+            private static final int NOTIFICATION_X = 10;
+
+            /** Y coordinate to place the first notification at. */
+            private static final int NOTIFICATION_Y = 10;
+
+            /** Vertical gap between every notification. */
+            private static final int NOTIFICATION_GAP = 5;
+
+            @Override
+            public void addLayoutComponent(@Nullable String name, @NotNull Component comp) {
+                if (NOTIFICATION.equals(name)) { notifications.add(comp); }
+            }
+
+            @Override
+            public void removeLayoutComponent(@NotNull Component comp) { notifications.remove(comp); }
+
+            @Override
+            public Dimension preferredLayoutSize(@NotNull Container parent) {
+                return new Dimension(0, 0);
+            }
+
+            @Override
+            public Dimension minimumLayoutSize(@NotNull Container parent) {
+                return new Dimension(0, 0);
+            }
+
+            @Override
+            public void layoutContainer(@NotNull Container parent) {
+
+                int y = NOTIFICATION_Y;
+                for (Component notification : notifications) {
+                    if (notification.isVisible()) {
+
+                        Dimension size = notification.getPreferredSize();
+                        notification.setBounds(NOTIFICATION_X, y, size.width, size.height);
+
+                        y += size.height + NOTIFICATION_GAP;
+                    }
+                }
+            }
         }
     }
 

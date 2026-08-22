@@ -331,6 +331,14 @@ public class ZoomPane extends JScrollPane implements ZoomPaneConstants {
     }
 
     /**
+     * Returns the current {@code ZoomViewport}.
+     *
+     * @return the viewport property
+     * @see #setViewport(ZoomViewport)
+     */
+    public ZoomViewport getZoomViewport() { return (ZoomViewport) getViewport(); }
+
+    /**
      * Creates a viewport if necessary and then sets its view. Applications that don't provide the view
      * directly to the {@code ZoomPane} constructor should use this method to specify the {@code ZoomView}
      * child that's going to be displayed in the {@code ZoomPane}. For example:

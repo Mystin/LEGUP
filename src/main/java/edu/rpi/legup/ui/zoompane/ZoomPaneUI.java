@@ -44,7 +44,7 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
     /** {@code PropertyChangeListener} installed on the viewport. */
     private PropertyChangeListener viewportPropertyChangeListener;
 
-    /** {@code CompoenntListener} installed on the viewport. */
+    /** {@code ComponentListener} installed on the viewport. */
     private ComponentListener viewportResizeListener;
 
     /**
@@ -52,6 +52,14 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
      * @see Actions#readyToFit(ZoomPane)
      */
     protected boolean waitingToFit;
+
+    /**
+     * Flag indicating that the viewport has fit its view and should re-fit its view every time the view changes
+     * until an action is taken.
+     *
+     * @see Actions#readyToFit(ZoomPane)
+     */
+    protected boolean isFit;
 
     /**
      * Flag indicating that state change events should be ignored (usually because they were triggered by
@@ -261,20 +269,22 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
 
     @Override
     protected void syncScrollPaneWithViewport() {
-        ZoomViewport viewport = (ZoomViewport) scrollpane.getViewport();
-        JScrollBar vsb = scrollpane.getVerticalScrollBar();
-        JScrollBar hsb = scrollpane.getHorizontalScrollBar();
-        ZoomBar zb = ((ZoomPane) scrollpane).getZoomBar();
-        ZoomViewport rowHead = (ZoomViewport) scrollpane.getRowHeader();
-        ZoomViewport colHead = (ZoomViewport) scrollpane.getColumnHeader();
-        Insets padding = getViewPadding((ZoomPane) scrollpane);
+        ZoomPane zoomPane = (ZoomPane) scrollpane;
+        ZoomViewport viewport = (ZoomViewport) zoomPane.getViewport();
+        JScrollBar vsb = zoomPane.getVerticalScrollBar();
+        JScrollBar hsb = zoomPane.getHorizontalScrollBar();
+        ZoomBar zb = zoomPane.getZoomBar();
+        ZoomViewport rowHead = (ZoomViewport) zoomPane.getRowHeader();
+        ZoomViewport colHead = (ZoomViewport) zoomPane.getColumnHeader();
+        Insets padding = getViewPadding(zoomPane);
 
         // If view just changed size from 0, may need to fit it
         ignoreStateChanges = true;
-        if (waitingToFit && Actions.readyToFit((ZoomPane) scrollpane)) {
-            Actions.zoomToFit((ZoomPane) scrollpane);
+        if ((isFit || waitingToFit) && Actions.readyToFit(zoomPane)) {
+            Actions.zoomToFit(zoomPane);
             waitingToFit = false;
         }
+        else { viewport.setViewPosition(Actions.clampViewPos(zoomPane, viewport.getPreciseViewPosition())); }
 
         if (viewport != null) {
             Dimension2D extentSize = viewport.getPreciseExtentSize();
@@ -306,7 +316,7 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
             }
             if (zb != null) {
                 int max = 1000;
-                double zoom = Actions.scaleFactorToZoom((ZoomPane) scrollpane, viewport.getScaleFactor());
+                double zoom = Actions.scaleFactorToZoom(zoomPane, viewport.getScaleFactor());
                 int value = Math.clamp(Math.round(zoom * max), 0, max);
                 zb.setValues(value, 0, 0, max);
             }
@@ -551,6 +561,7 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
         protected static void scroll(@NotNull ZoomPane zoomPane, int orientation, double direction, boolean block) {
             if (!viewportViewReady(zoomPane)) { return; }
 
+            ((ZoomPaneUI) zoomPane.getUI()).isFit = false;
             ZoomViewport viewport = (ZoomViewport) zoomPane.getViewport();
             Rectangle2D visRect = viewport.getViewRect();
             Insets padding = getViewPadding(zoomPane);
@@ -581,6 +592,7 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
         protected static void zoomTo(@NotNull ZoomPane zoomPane, double zoom, @Nullable Point2D focus) {
             if (!viewportViewReady(zoomPane)) { return; }
 
+            ((ZoomPaneUI) zoomPane.getUI()).isFit = false;
             ZoomViewport viewport = (ZoomViewport) zoomPane.getViewport();
             double oldScaleFactor = viewport.getScaleFactor();
             double newScaleFactor = zoomToScaleFactor(zoomPane, Math.clamp(zoom, 0, 1));
@@ -640,6 +652,7 @@ public class ZoomPaneUI extends FlatScrollPaneUI {
         public static void zoomToFit(@NotNull ZoomPane zoomPane) {
             if (!readyToFit(zoomPane)) { return; }
 
+            ((ZoomPaneUI) zoomPane.getUI()).isFit = true;
             ZoomViewport viewport = (ZoomViewport) zoomPane.getViewport();
             Insets padding = getViewPadding(zoomPane);
             double scaleFactor = clampScaleFactor(zoomPane, Math.min(
