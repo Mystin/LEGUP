@@ -55,7 +55,7 @@ public class TreeView extends ZoomView implements ITreeListener {
      *
      * @return the {@code TreeViewSelection} object representing the current selection
      */
-    public TreeViewSelection getSelection() { return selection; }
+    @NotNull public TreeViewSelection getSelection() { return selection; }
 
     /**
      * Gets the {@code TreeElementView} by the specified point or {@code null} if no view exists at the

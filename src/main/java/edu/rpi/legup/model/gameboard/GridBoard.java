@@ -2,13 +2,12 @@ package edu.rpi.legup.model.gameboard;
 
 import edu.rpi.legup.model.elements.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
 /**
- * GridBoard represents a grid-based board where each cell can be manipulated based on its
+ * {@code GridBoard} represents a grid-based board where each cell can be manipulated based on its
  * coordinates. The board supports operations such as getting and setting cells, and provides
  * dimensions of the grid. It also supports deep copying of the board.
  */
@@ -23,11 +22,8 @@ public class GridBoard extends Board {
      * @param height height of the board
      */
     public GridBoard(int width, int height) {
+        super(width * height);
         this.dimension = new Dimension(width, height);
-
-        for (int i = 0; i < width * height; i++) {
-            puzzleElements.add(null);
-        }
     }
 
     /**
@@ -45,14 +41,7 @@ public class GridBoard extends Board {
      * @return grid cell at location {@code (x, y)}
      */
     public GridCell getCell(int x, int y) {
-        if (y * dimension.width + x >= puzzleElements.size()
-                || x >= dimension.width
-                || y >= dimension.height
-                || x < 0
-                || y < 0) {
-            return null;
-        }
-        return (GridCell) puzzleElements.get(y * dimension.width + x);
+        return inBounds(x, y) ? (GridCell) puzzleElements.get(y * dimension.width + x) : null;
     }
 
     /**
@@ -72,14 +61,7 @@ public class GridBoard extends Board {
      * @param cell grid cell to set at location {@code (x,y)}
      */
     public void setCell(int x, int y, @NotNull GridCell cell) {
-        if (y * dimension.width + x >= puzzleElements.size()
-                || x >= dimension.width
-                || y >= dimension.height
-                || x < 0
-                || y < 0) {
-            return;
-        }
-        puzzleElements.set(y * dimension.width + x, cell);
+        if (inBounds(x, y)) { puzzleElements.set(y * dimension.width + x, cell); }
     }
 
     /**
@@ -91,11 +73,9 @@ public class GridBoard extends Board {
      * @param e puzzle element to set cell to
      * @param m mouse click event, used to differentiate left/right click
      */
-    public void setCell(int x, int y, @Nullable Element e, @NotNull MouseEvent m) {
-
-        if (e != null && x < dimension.width && y < dimension.height && x >= 0 && y >= 0) {
-            puzzleElements.get(y * dimension.width + x).setType(e, m);
-        }
+    public void setCell(int x, int y, @NotNull Element e, @NotNull MouseEvent m) {
+        GridCell cell = getCell(x, y);
+        if (cell != null) { cell.setType(e, m); }
     }
 
     /**
@@ -118,6 +98,9 @@ public class GridBoard extends Board {
      * @return the dimension of the grid board
      */
     @NotNull public Dimension getDimension() { return dimension; }
+
+    /** @return {@code true} if the given location is in bounds; {@code false} otherwise */
+    protected boolean inBounds(int x, int y) { return 0 <= x && x < dimension.width && 0 <= y && y < dimension.height; }
 
     @Override
     @NotNull public GridBoard copy() {

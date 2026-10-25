@@ -2,6 +2,8 @@ package edu.rpi.legup.puzzle.shorttruthtable;
 
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.gameboard.GridCell;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
@@ -129,7 +131,7 @@ public class ShortTruthTableCell extends GridCell<ShortTruthTableCellType> {
      * @param e element to set the type of this Short Truth Table cell to
      */
     @Override
-    public void setType(Element e, MouseEvent m) {
+    public void setType(@NotNull Element e, @NotNull MouseEvent m) {
         // Do not allow odd rows to be modified since they are spacer rows
         if (this.getLocation().getY() % 2 == 1) {
             return;

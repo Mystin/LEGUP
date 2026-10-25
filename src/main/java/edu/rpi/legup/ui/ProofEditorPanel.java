@@ -4,7 +4,6 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import edu.rpi.legup.app.GameBoardFacade;
 import edu.rpi.legup.app.LegupPreferences;
 import edu.rpi.legup.app.VersionInfo;
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.controller.RuleController;
 import edu.rpi.legup.history.ICommand;
 import edu.rpi.legup.history.IHistoryListener;
@@ -20,7 +19,7 @@ import edu.rpi.legup.ui.boardview.BoardView;
 import edu.rpi.legup.ui.proofeditorui.rulesview.RuleFrame;
 import edu.rpi.legup.ui.proofeditorui.treeview.TreePanel;
 import edu.rpi.legup.ui.proofeditorui.treeview.TreeViewSelection;
-import edu.rpi.legup.ui.zoompane.ZoomPaneUI;
+import edu.rpi.legup.ui.zoompane.ZoomPane;
 import edu.rpi.legup.user.Submission;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -58,6 +57,7 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
     private JFrame frame;
     private RuleFrame ruleFrame;
     private DynamicView dynamicBoardView;
+    private ZoomPane boardViewPane;
     private JTextArea goalText;
     private JPanel boardSidePanel;
     private JSplitPane topHalfPanel, mainPanel;
@@ -73,7 +73,7 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
             preferences,
             exit;
     private JMenu edit;
-    private JMenuItem undo, redo, fitBoardToScreen;
+    private JMenuItem undo, redo;
 
     private JMenu view;
 
@@ -194,8 +194,6 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
         edit = new JMenu("Edit");
         undo = new JMenuItem("Undo");
         redo = new JMenuItem("Redo");
-
-        fitBoardToScreen = new JMenuItem("Fit Board to Screen");
 
         view = new JMenu("View");
 
@@ -463,10 +461,6 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
                     KeyStroke.getKeyStroke(
                             'Z', InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
         }
-
-        edit.add(fitBoardToScreen);
-        fitBoardToScreen.addActionListener(
-                (ActionEvent) -> dynamicBoardView.fitBoardViewToScreen());
 
         mBar.add(proof);
 
@@ -793,11 +787,8 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
 
         treePanel = new TreePanel();
 
-        dynamicBoardView =
-                new DynamicView(new ScrollView(new BoardController()), DynamicViewType.BOARD);
-        TitledBorder titleBoard = BorderFactory.createTitledBorder("Board");
-        titleBoard.setTitleJustification(TitledBorder.CENTER);
-        dynamicBoardView.setBorder(titleBoard);
+        boardViewPane = new ZoomPane(null);
+        addTitledBorder(boardViewPane, "Board");
 
         goalText = new JTextArea();
         goalText.setRows(1);
@@ -811,16 +802,15 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
         goalPane.setPreferredSize(new Dimension(0, 50));
         goalPane.setMinimumSize(new Dimension(0, 40));
         goalPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        CompoundBorder goalBorder =
-                new CompoundBorder(
-                        BorderFactory.createTitledBorder("Goal Condition"),
-                        new EmptyBorder(0, 10, 3, 10));
-        ((TitledBorder) goalBorder.getOutsideBorder()).setTitleJustification(TitledBorder.CENTER);
-        goalPane.setBorder(goalBorder);
+        addTitledBorder(goalPane, "Goal Condition");
+        goalPane.setBorder(new CompoundBorder(
+                goalPane.getBorder(),
+                new EmptyBorder(0, 10, 3, 10)
+        ));
 
         boardSidePanel = new JPanel(new BorderLayout());
         boardSidePanel.add(goalPane, BorderLayout.NORTH);
-        boardSidePanel.add(dynamicBoardView);
+        boardSidePanel.add(boardViewPane);
 
         JPanel boardPanel = new JPanel(new BorderLayout());
         topHalfPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, ruleFrame, boardSidePanel);
@@ -830,8 +820,6 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
 
         boardPanel.add(mainPanel);
         boardPanel.setVisible(true);
-        boardBorder = BorderFactory.createTitledBorder("Board");
-        boardBorder.setTitleJustification(TitledBorder.CENTER);
 
         ruleBox.add(boardPanel);
         treeBox.add(ruleBox);
@@ -1073,14 +1061,10 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
     public void setPuzzleView(@NotNull Puzzle puzzle) {
         this.boardView = puzzle.getBoardView();
 
-        boardSidePanel.remove(dynamicBoardView);
-        dynamicBoardView = new DynamicView(boardView, DynamicViewType.BOARD);
-        boardSidePanel.add(dynamicBoardView);
+        boardViewPane.setViewportView(boardView);
         String boardType = boardView.getBoard().getClass().getSimpleName();
         boardType = boardType.substring(0, boardType.indexOf("Board"));
-        TitledBorder titleBoard = BorderFactory.createTitledBorder(boardType + " Board");
-        titleBoard.setTitleJustification(TitledBorder.CENTER);
-        dynamicBoardView.setBorder(titleBoard);
+        addTitledBorder(boardViewPane, boardType + " Board");
 
         this.treePanel.getTreeView().resetView();
         this.treePanel.getTreeView().setTree(puzzle.getTree());
@@ -1222,12 +1206,12 @@ public class ProofEditorPanel extends LegupPanel implements IHistoryListener {
     }
 
     /**
-     * Returns the current dynamic board view.
+     * Returns the current board view pane.
      *
-     * @return the current {@link DynamicView}
+     * @return the current board view {@code ZoomPane}
      */
-    @Nullable public DynamicView getDynamicBoardView() {
-        return dynamicBoardView;
+    @Nullable public ZoomPane getBoardViewPane() {
+        return boardViewPane;
     }
 
     /**

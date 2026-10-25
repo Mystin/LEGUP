@@ -1,6 +1,5 @@
 package edu.rpi.legup.ui;
 
-import edu.rpi.legup.controller.Controller;
 import java.awt.*;
 import java.util.TreeSet;
 import java.util.logging.Logger;

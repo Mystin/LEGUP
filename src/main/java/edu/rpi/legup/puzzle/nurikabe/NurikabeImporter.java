@@ -137,7 +137,7 @@ public class NurikabeImporter extends PuzzleImporter {
                         boardCell.setGoalData(cell.getData());
                         boardCell.setGoal(true);
                     }
-                    goal.addCell(cell);
+                    goal.addElement(cell);
                 }
                 puzzle.setGoal(goal);
             } else {

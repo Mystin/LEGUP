@@ -1,5 +1,7 @@
 package edu.rpi.legup.puzzle.lightup;
 
+import edu.rpi.legup.controller.EditorController;
+import edu.rpi.legup.controller.ProofController;
 import edu.rpi.legup.model.Puzzle;
 import edu.rpi.legup.model.RegisterPuzzle;
 import edu.rpi.legup.model.gameboard.Board;
@@ -44,6 +46,15 @@ public class LightUp extends Puzzle {
     }
 
     @Override
+    protected ProofController<?> createProofController() {
+        return new LightUpProofController();
+    }
+
+    @Override
+    protected EditorController<?> createEditorController() {
+        return new LightUpEditorController();
+    }
+
     /**
      * Determines if the given dimensions are valid for Light Up
      *
@@ -51,6 +62,7 @@ public class LightUp extends Puzzle {
      * @param columns the number of columns
      * @return true if the given dimensions are valid for Light Up, false otherwise
      */
+    @Override
     public boolean isValidDimensions(int rows, int columns) {
         return rows >= 0 && columns >= 0;
     }
@@ -64,7 +76,6 @@ public class LightUp extends Puzzle {
     @Override
     public boolean isBoardComplete(@NotNull Board board) {
         LightUpBoard lightUpBoard = (LightUpBoard) board;
-        lightUpBoard.fillWithLight();
 
         for (ContradictionRule rule : contradictionRules) {
             if (rule.checkContradiction(lightUpBoard) == null) {
@@ -78,7 +89,7 @@ public class LightUp extends Puzzle {
             LightUpCell cell = (LightUpCell) data;
             if ((cell.getType() == LightUpCellType.UNKNOWN
                             || cell.getType() == LightUpCellType.EMPTY)
-                    && !cell.isLite()) {
+                    && !cell.isLit()) {
                 return false;
             }
         }

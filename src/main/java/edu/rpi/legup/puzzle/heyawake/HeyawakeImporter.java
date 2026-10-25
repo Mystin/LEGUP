@@ -117,7 +117,7 @@ public class HeyawakeImporter extends PuzzleImporter {
                         boardCell.setGoalData(cell.getData());
                         boardCell.setGoal(true);
                     }
-                    goal.addCell(cell);
+                    goal.addElement(cell);
                     heyawakeBoard.getCell(cell.getLocation()).setGoal(true);
                 }
                 puzzle.setGoal(goal);

@@ -2,6 +2,8 @@ package edu.rpi.legup.puzzle.fillapix;
 
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.gameboard.GridCell;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Objects;
@@ -56,7 +58,7 @@ public class FillapixCell extends GridCell<Integer> implements Comparable<Fillap
      * @param m keeps track of what the mouse is doing.
      */
     @Override
-    public void setType(Element e, MouseEvent m) {
+    public void setType(@NotNull Element e, @NotNull MouseEvent m) {
         switch (e.getElementID()) {
             case "FPIX-ELEM-0001":
                 this.setCellType(FillapixCellType.BLACK);

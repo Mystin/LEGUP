@@ -12,9 +12,10 @@ import edu.rpi.legup.model.gameboard.CaseBoard;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.ui.boardview.BoardView;
 import edu.rpi.legup.ui.boardview.ElementView;
-import edu.rpi.legup.ui.proofeditorui.treeview.TreePanel;
 import edu.rpi.legup.ui.proofeditorui.treeview.TreeView;
 import edu.rpi.legup.ui.proofeditorui.treeview.TreeViewSelection;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.event.MouseEvent;
 
 public class TreeTentController extends ElementController {
@@ -37,7 +38,7 @@ public class TreeTentController extends ElementController {
      * @param e the MouseEvent triggered by the user
      */
     @Override
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(@NotNull MouseEvent e) {
         if (e.getButton() != MouseEvent.BUTTON2) {
             BoardView boardView = getInstance().getLegupUI().getBoardView();
             if (boardView != null) {
@@ -54,10 +55,9 @@ public class TreeTentController extends ElementController {
      * @param e the MouseEvent triggered by the user
      */
     @Override
-    public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(@NotNull MouseEvent e) {
         if (GameBoardFacade.getInstance().getLegupUI().getTreePanel() != null
                 && e.getButton() != MouseEvent.BUTTON2) {
-            TreePanel treePanel = GameBoardFacade.getInstance().getLegupUI().getTreePanel();
             TreeView treeView =
                     GameBoardFacade.getInstance().getLegupUI().getTreePanel().getTreeView();
             BoardView boardView = getInstance().getLegupUI().getBoardView();
@@ -74,9 +74,9 @@ public class TreeTentController extends ElementController {
                     if (autoCaseRuleCommand.canExecute()) {
                         autoCaseRuleCommand.execute();
                         getInstance().getHistory().pushChange(autoCaseRuleCommand);
-                        treePanel.updateError("");
+                        treeView.updateError("");
                     } else {
-                        treePanel.updateError(autoCaseRuleCommand.getError());
+                        treeView.updateError(autoCaseRuleCommand.getError());
                     }
                 } else {
                     if (dragStart == lastCellPressed) {
@@ -85,9 +85,9 @@ public class TreeTentController extends ElementController {
                             if (edit.canExecute()) {
                                 edit.execute();
                                 getInstance().getHistory().pushChange(edit);
-                                treePanel.updateError("");
+                                treeView.updateError("");
                             } else {
-                                treePanel.updateError(edit.getError());
+                                treeView.updateError(edit.getError());
                             }
                         } else {
                             ClueCommand edit =
@@ -95,9 +95,9 @@ public class TreeTentController extends ElementController {
                             if (edit.canExecute()) {
                                 edit.execute();
                                 getInstance().getHistory().pushChange(edit);
-                                treePanel.updateError("");
+                                treeView.updateError("");
                             } else {
-                                treePanel.updateError(edit.getError());
+                                treeView.updateError(edit.getError());
                             }
                         }
                     } else {
@@ -112,7 +112,7 @@ public class TreeTentController extends ElementController {
                                     editLine.execute();
                                     getInstance().getHistory().pushChange(editLine);
                                 } else {
-                                    treePanel.updateError(editLine.getError());
+                                    treeView.updateError(editLine.getError());
                                 }
                             }
                         }

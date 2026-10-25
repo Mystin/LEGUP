@@ -7,6 +7,8 @@ import edu.rpi.legup.controller.ElementController;
 import edu.rpi.legup.model.Puzzle;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.ui.boardview.BoardView;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class MasyuController extends ElementController {
      * @param e the event to be processed
      */
     @Override
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(@NotNull MouseEvent e) {
         BoardView boardView = getInstance().getLegupUI().getBoardView();
         this.masyuLine.clear();
         mousePressedCell = (MasyuElementView) boardView.getElement(e.getPoint());
@@ -39,7 +41,7 @@ public class MasyuController extends ElementController {
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
+    public void mouseDragged(@NotNull MouseEvent e) {
         super.mouseDragged(e);
         BoardView boardView = getInstance().getLegupUI().getBoardView();
         MasyuElementView elementView = (MasyuElementView) boardView.getElement(e.getPoint());
@@ -79,7 +81,7 @@ public class MasyuController extends ElementController {
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(@NotNull MouseEvent e) {
         super.mouseReleased(e);
         mousePressedCell = null;
         mouseDraggedCell = null;

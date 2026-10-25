@@ -1,6 +1,8 @@
 package edu.rpi.legup.ui.boardview;
 
 import edu.rpi.legup.model.gameboard.PuzzleElement;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -41,11 +43,11 @@ public abstract class ElementView implements Shape {
      * @param point point to check
      * @return true if the point is within the ElementView, false otherwise
      */
-    public boolean isWithinBounds(Point point) {
-        return point.x >= location.x
-                && point.x <= location.x + size.width
-                && point.y >= location.y
-                && point.y <= location.y + size.height;
+    public boolean isWithinBounds(@NotNull Point2D point) {
+        return point.getX() >= location.x
+                && point.getX() <= location.x + size.width
+                && point.getY() >= location.y
+                && point.getY() <= location.y + size.height;
     }
 
     /**

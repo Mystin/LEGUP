@@ -1,5 +1,8 @@
 package edu.rpi.legup.model;
 
+import edu.rpi.legup.app.GameBoardFacade;
+import edu.rpi.legup.controller.EditorController;
+import edu.rpi.legup.controller.ProofController;
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.elements.PlaceableElement;
 import edu.rpi.legup.model.elements.RegisterElement;
@@ -9,10 +12,21 @@ import edu.rpi.legup.model.observer.IBoardSubject;
 import edu.rpi.legup.model.observer.ITreeListener;
 import edu.rpi.legup.model.observer.ITreeSubject;
 import edu.rpi.legup.model.rules.*;
-import edu.rpi.legup.model.tree.*;
+import edu.rpi.legup.model.tree.Tree;
+import edu.rpi.legup.model.tree.TreeElement;
+import edu.rpi.legup.model.tree.TreeNode;
 import edu.rpi.legup.save.InvalidFileFormatException;
 import edu.rpi.legup.ui.boardview.BoardView;
 import edu.rpi.legup.utility.LegupUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,14 +36,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Consumer;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 /**
  * Abstract class representing a puzzle. The Puzzle class manages the core components of a puzzle
@@ -48,6 +54,8 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
     protected PuzzleImporter importer;
     protected PuzzleExporter exporter;
     protected ElementFactory factory;
+    protected ProofController<?> proofController;
+    protected EditorController<?> editorController;
 
     private List<IBoardListener> boardListeners;
     private List<ITreeListener> treeListeners;
@@ -276,16 +284,15 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
     }
 
     /**
-     * Determines if the board of the given node has all goal cell locations as known values
+     * Determines if the specified tree node's board has all goal element locations as known values.
      *
-     * @param node node to check the board of
-     * @return true if all goal cell locations on the board are known, false otherwise
+     * @param node {@code TreeNode} to check the board of
+     * @return {@code true} if all goal element locations on the board are known; {@code false} otherwise
      */
-    private boolean goalCellsAreKnown(TreeNode node) {
-        GridBoard gridBoard = (GridBoard) node.getBoard();
-        for (GridCell goalCell : this.goal.getCells()) {
-            GridCell boardCell = gridBoard.getCell(goalCell.getLocation());
-            if (!boardCell.isKnown()) {
+    private boolean goalElementsAreKnown(TreeNode node) {
+        Board board = node.getBoard();
+        for (PuzzleElement<?> element : goal.getElements()) {
+            if (!board.getPuzzleElement(element).isKnown()) {
                 return false;
             }
         }
@@ -293,20 +300,20 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
     }
 
     /**
-     * Returns number of cells at goal locations that are proven to match/not match goal value
+     * Returns number of elements at goal locations that are proven to match/not match goal value
      *
-     * @param node TreeNode containing GridBoard to check for matching goal cells
-     * @param matching true to get cells proven to match, false to get cells proven not to
+     * @param node {@code TreeNode} containing {@code Board} to check for matching goal cells
+     * @param matching {@code true} to get cells proven to match, {@code false} to get cells proven not to
      * @return number of proven matches/mismatches
      */
     private int countGoalMatches(TreeNode node, boolean matching) {
         int count = 0;
-        GridBoard gridBoard = (GridBoard) node.getBoard();
-        for (GridCell goalCell : this.goal.getCells()) {
-            GridCell boardCell = gridBoard.getCell(goalCell.getLocation());
-            if (matching && boardCell.equals(goalCell)) {
+        Board board = node.getBoard();
+        for (PuzzleElement<?> element : goal.getElements()) {
+            PuzzleElement<?> boardElement = board.getPuzzleElement(element);
+            if (matching && boardElement.equalsData(element)) {
                 count++;
-            } else if (!matching && boardCell.isKnown() && !boardCell.equals(goalCell)) {
+            } else if (!matching && boardElement.isKnown() && !boardElement.equalsData(element)) {
                 count++;
             }
         }
@@ -314,23 +321,24 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
     }
 
     /**
-     * Determines if the goal cells are matched between boards
+     * Checks if the goal elements in the boards of the specified {@code TreeNodes} match.
      *
-     * @param nodes Set of TreeNodes containing GridBoards to check for matching goal cells
-     * @return true if all the cells match what the goal specifies, false otherwise
+     * @param nodes {@code Set} of {@code TreeNode}s containing {@code Board}s to check for
+     *              matching goal cells
+     * @return {@code true} if all the cells match what the goal specifies; {@code false} otherwise
      */
-    private boolean cellsMatchBetweenBoards(Set<TreeNode> nodes) {
+    private boolean elementsMatchBetweenBoards(Set<TreeNode> nodes) {
         if (nodes.isEmpty()) {
             return true;
         }
         Iterator<TreeNode> itr = nodes.iterator();
-        GridBoard board1 = (GridBoard) itr.next().getBoard();
+        Board board1 = itr.next().getBoard();
         while (itr.hasNext()) {
-            GridBoard board2 = (GridBoard) itr.next().getBoard();
-            for (GridCell goalCell : this.goal.getCells()) {
-                GridCell cell1 = board1.getCell(goalCell.getLocation());
-                GridCell cell2 = board2.getCell(goalCell.getLocation());
-                if (!cell1.equals(cell2)) {
+            Board board2 = itr.next().getBoard();
+            for (PuzzleElement<?> goalElement : goal.getElements()) {
+                PuzzleElement<?> element1 = board1.getPuzzleElement(goalElement);
+                PuzzleElement<?> element2 = board2.getPuzzleElement(goalElement);
+                if (!element1.equalsData(element2)) {
                     return false;
                 }
             }
@@ -362,7 +370,7 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
             case PROVE_CELL_MUST_BE -> {
                 // All non-contradictory branches have the right values
                 for (TreeNode node : getOpenLeaves()) {
-                    if (countGoalMatches(node, true) != goal.getCells().size()) {
+                    if (countGoalMatches(node, true) != goal.getElements().size()) {
                         yield false;
                     }
                 }
@@ -387,11 +395,11 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
             case PROVE_SINGLE_CELL_VALUE -> {
                 // All open branches match goal cell values
                 for (TreeNode node : getOpenLeaves()) {
-                    if (!goalCellsAreKnown(node)) {
+                    if (!goalElementsAreKnown(node)) {
                         yield false;
                     }
                 }
-                if (!cellsMatchBetweenBoards(getOpenLeaves())) {
+                if (!elementsMatchBetweenBoards(getOpenLeaves())) {
                     yield false;
                 }
 
@@ -405,7 +413,7 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
                 }
 
                 // At least two solutions have a different set of goal cell values
-                yield !cellsMatchBetweenBoards(getCompleteLeaves());
+                yield !elementsMatchBetweenBoards(getCompleteLeaves());
             }
             case PROVE_ANY_SOLUTION ->
                     // There is one proven solution
@@ -416,7 +424,7 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
             case PROVE_VALUES_ARE_POSSIBLE -> {
                 // There is a solution with this set of values
                 for (TreeNode node : getCompleteLeaves()) {
-                    if (countGoalMatches(node, true) == goal.getCells().size()) {
+                    if (countGoalMatches(node, true) == goal.getElements().size()) {
                         yield true;
                     }
                 }
@@ -424,7 +432,7 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
                 // If there is a solution, it must have this set of values
                 if (goal.assumeSolution() && !getOpenLeaves().isEmpty()) {
                     for (TreeNode node : getOpenLeaves()) {
-                        if (countGoalMatches(node, true) != goal.getCells().size()) {
+                        if (countGoalMatches(node, true) != goal.getElements().size()) {
                             yield false;
                         }
                     }
@@ -516,6 +524,52 @@ public abstract class Puzzle implements IBoardSubject, ITreeSubject {
     public PuzzleExporter getExporter() {
         return exporter;
     }
+
+    /**
+     * Gets this {@code Puzzle}'s singleton {@code ProofController}. This should only be used
+     * in the proof editor.
+     *
+     * @return singleton {@code ProofController}
+     */
+    public ProofController<?> getProofController() {
+        if (proofController == null) {
+            if (GameBoardFacade.getInstance().getLegupUI().getProofEditor() != null) {
+                throw new IllegalStateException("Proof controller accessed while not in the proof editor.");
+            }
+            proofController = createProofController();
+        }
+        return proofController;
+    }
+
+    /**
+     * Instantiate this puzzle's {@code ProofController}.
+     *
+     * @return a new instance of this puzzle's {@code ProofController}
+     */
+    protected abstract ProofController<?> createProofController();
+
+    /**
+     * Gets this {@code Puzzle}'s singleton {@code EditorController}. This should only be used
+     * in the puzzle editor.
+     *
+     * @return singleton {@code EditorController}
+     */
+    public EditorController<?> getEditorController() {
+        if (editorController == null) {
+            if (GameBoardFacade.getInstance().getLegupUI().getPuzzleEditor() != null) {
+                throw new IllegalStateException("Editor controller accessed while not in the puzzle editor.");
+            }
+            editorController = createEditorController();
+        }
+        return editorController;
+    }
+
+    /**
+     * Instantiate this puzzle's {@code EditorController}.
+     *
+     * @return a new instance of this puzzle's {@code EditorController}
+     */
+    protected abstract EditorController<?> createEditorController();
 
     /**
      * Gets the name of the edu.rpi.legup.puzzle

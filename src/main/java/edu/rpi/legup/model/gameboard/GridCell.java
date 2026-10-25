@@ -1,5 +1,7 @@
 package edu.rpi.legup.model.gameboard;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.*;
 
 /**
@@ -18,7 +20,7 @@ public class GridCell<T> extends PuzzleElement<T> {
      * @param value data value that represents the grid cell
      * @param location location on the board
      */
-    public GridCell(T value, Point location) {
+    public GridCell(T value, @Nullable Point location) {
         super(value);
         this.location = location;
     }
@@ -75,28 +77,9 @@ public class GridCell<T> extends PuzzleElement<T> {
      *     otherwise
      */
     public boolean equals(GridCell<T> other) {
-        return location.equals(other.location) && data.equals(other.data);
+        return (location == other.location || location.equals(other.location)) && data.equals(other.data);
     }
 
-    /**
-     * Determines if the cell is unknown. Should be overridden.
-     *
-     * @return true if cell is unknown, false otherwise.
-     */
-    public boolean isKnown() {
-        if (data instanceof Integer) {
-            return (Integer) data != 0;
-        }
-        return data != null;
-    }
-
-    /**
-     * Get text description of cell's state. Used for generating goal condition text.
-     *
-     * @param isPlural Flag informing if the description will be used in a plural context.
-     * @return String describing cell state.
-     */
-    public String describeState(boolean isPlural) {
-        return "data = " + getData();
-    }
+    @Override
+    public String describeIdentity() { return "(" + location.x + ", " + location.y + ")"; }
 }

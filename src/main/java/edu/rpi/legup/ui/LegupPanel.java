@@ -1,6 +1,9 @@
 package edu.rpi.legup.ui;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 
 /**
  * An abstract base class for panels in the LEGUP application. This class extends {@link JPanel} and
@@ -13,4 +16,16 @@ public abstract class LegupPanel extends JPanel {
 
     /** Abstract method to make the panel visible */
     public abstract void makeVisible();
+
+    /**
+     * Adds a centered titled border to the specified component.
+     *
+     * @param c {@code JComponent} to give titled border
+     * @param title title to put in the {@code TitledBorder}
+     */
+    protected void addTitledBorder(@NotNull JComponent c, @NotNull String title) {
+        TitledBorder border = BorderFactory.createTitledBorder(title);
+        border.setTitleJustification(TitledBorder.CENTER);
+        c.setBorder(border);
+    }
 }

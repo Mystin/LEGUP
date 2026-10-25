@@ -1,10 +1,11 @@
 package edu.rpi.legup.puzzle.sudoku;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.ui.boardview.DataSelectionView;
 import edu.rpi.legup.ui.boardview.ElementView;
 import edu.rpi.legup.ui.boardview.GridBoardView;
 import edu.rpi.legup.ui.boardview.SelectionItemView;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.util.Set;
 import javax.swing.*;
@@ -69,7 +70,7 @@ public class SudokuView extends GridBoardView {
     }
 
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
 
         if (board instanceof PossibleNumberCaseBoard) {
             drawCaseBoard(graphics2D);
@@ -152,14 +153,14 @@ public class SudokuView extends GridBoardView {
      *
      * @return the dimensions of the board
      */
-    protected Dimension getProperSize() {
+    protected @NotNull Dimension getProperSize() {
         Dimension boardViewSize = new Dimension();
         boardViewSize.width = gridSize.width * (elementSize.width + 1) + 9;
         boardViewSize.height = gridSize.height * (elementSize.height + 1) + 9;
         return boardViewSize;
     }
 
-    public DataSelectionView getSelectionPopupMenu() {
+    public @NotNull DataSelectionView getSelectionPopupMenu() {
         DataSelectionView selectionView = new DataSelectionView(elementController);
         GridLayout layout = new GridLayout(3, 3);
         selectionView.setLayout(layout);

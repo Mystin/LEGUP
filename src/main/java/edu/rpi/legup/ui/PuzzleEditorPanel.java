@@ -4,8 +4,8 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import edu.rpi.legup.app.GameBoardFacade;
 import edu.rpi.legup.app.LegupPreferences;
 import edu.rpi.legup.app.VersionInfo;
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.controller.EditorElementController;
+import edu.rpi.legup.controller.ElementController;
 import edu.rpi.legup.history.ICommand;
 import edu.rpi.legup.history.IHistoryListener;
 import edu.rpi.legup.model.Goal;
@@ -35,6 +35,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
+
+import edu.rpi.legup.ui.zoompane.ZoomPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -54,19 +56,15 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
     private JToolBar toolBar1;
     private JToolBar toolBar2;
     private JFrame frame;
-    private JButton[] buttons;
     JSplitPane splitPanel;
     private JButton[] toolBar1Buttons;
     private JButton[] toolBar2Buttons;
-    private JPanel elementPanel;
-    private DynamicView dynamicBoardView;
+    private ZoomPane boardViewPane;
     private BoardView boardView;
     private TitledBorder boardBorder;
-    // private JSplitPane splitPanel, topHalfPanel;
     private JFileChooser fileChooser;
-    private JMenuItem undo, redo, fitBoardToScreen;
+    private JMenuItem undo, redo;
     private ElementFrame elementFrame;
-    private JPanel treePanel;
     private LegupUI legupUI;
     private EditorElementController editorElementController;
     private CreatePuzzleDialog cpd;
@@ -112,11 +110,8 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
         elementFrame = new ElementFrame(editorElementController);
         elementBox.add(elementFrame, BorderLayout.WEST);
 
-        dynamicBoardView =
-                new DynamicView(new ScrollView(new BoardController()), DynamicViewType.BOARD);
-        TitledBorder titleBoard = BorderFactory.createTitledBorder("Board");
-        titleBoard.setTitleJustification(TitledBorder.CENTER);
-        dynamicBoardView.setBorder(titleBoard);
+        boardViewPane = new ZoomPane(null);
+        addTitledBorder(boardViewPane, "Board");
 
         // Use a multi-line, wrapped, non-editable JTextArea so
         // longer goal descriptions wrap and look consistent with the solver UI.
@@ -146,7 +141,7 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
 
         boardSidePanel = new JPanel(new BorderLayout());
         boardSidePanel.add(goalPane, BorderLayout.NORTH);
-        boardSidePanel.add(dynamicBoardView);
+        boardSidePanel.add(boardViewPane);
 
         JPanel boardPanel = new JPanel(new BorderLayout());
         splitPanel =
@@ -227,7 +222,6 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
         undo = new JMenuItem("Undo");
         // edit>redo
         redo = new JMenuItem("Redo");
-        fitBoardToScreen = new JMenuItem("Fit Board to Screen");
 
         // TODO: Undo operation currently does not get updated correctly in history
         // menus[1].add(undo);
@@ -284,10 +278,6 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
                             'Z', InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
         }
 
-        menus[1].add(fitBoardToScreen);
-        fitBoardToScreen.addActionListener(
-                (ActionEvent) -> dynamicBoardView.fitBoardViewToScreen());
-
         // HELP
         menus[2] = new JMenu("Help");
         legupWiki = new JMenuItem("LEGUP Wiki");
@@ -324,7 +314,6 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
         // Wipes the puzzle entirely as if LEGUP just started
         GameBoardFacade.getInstance().clearPuzzle();
         this.legupUI.displayPanel(0);
-        treePanel = null;
         boardView = null;
     }
 
@@ -470,7 +459,7 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
                         if (puzzleElement instanceof GridCell gridCell && gridCell.isGoal()) {
                             GridCell tmp = new GridCell(gridCell.getData(), gridCell.getLocation());
                             gridCell.setData(gridCell.getGoalData());
-                            goal.addCell(gridCell.copy());
+                            goal.addElement(gridCell.copy());
                             gridCell.setGoalData(tmp.getData());
                         }
                     }
@@ -658,7 +647,7 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
                     if (puzzleElement instanceof GridCell gridCell && gridCell.isGoal()) {
                         GridCell tmp = new GridCell(gridCell.getData(), gridCell.getLocation());
                         gridCell.setData(gridCell.getGoalData());
-                        goal.addCell(gridCell.copy());
+                        goal.addElement(gridCell.copy());
                         gridCell.setGoalData(tmp.getData());
                     }
                 }
@@ -764,15 +753,21 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
     public void setPuzzleView(@NotNull Puzzle puzzle) {
         this.boardView = puzzle.getBoardView();
         if (boardView.getBoard() instanceof GridBoard gridBoard && puzzle.getGoal() != null) {
-            for (GridCell goalCell : puzzle.getGoal().getCells()) {
+            for (GridCell goalCell : puzzle.getGoal().getElements()) {
                 GridCell boardCell = gridBoard.getCell(goalCell.getLocation());
                 if (boardCell != null) {
                     boardCell.setGoal(true);
                 }
             }
         }
-        editorElementController.setElementController(boardView.getElementController());
-        dynamicBoardView = new DynamicView(boardView, DynamicViewType.BOARD);
+
+        // TODO: there has to be a more elegant way of doing this...
+        editorElementController.setElementController((ElementController) boardView.getController());
+
+        boardViewPane.setViewportView(boardView);
+        String boardType = boardView.getBoard().getClass().getSimpleName();
+        boardType = boardType.substring(0, boardType.indexOf("Board"));
+        addTitledBorder(boardViewPane, boardType + " Board");
 
         // Ensure we attach a listener to refresh the goal text whenever the board changes
         if (boardListener == null) {
@@ -829,16 +824,11 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
             }
 
             boardSidePanel.add(goalPane, BorderLayout.NORTH);
-            boardSidePanel.add(dynamicBoardView, BorderLayout.CENTER);
+            boardSidePanel.add(boardViewPane, BorderLayout.CENTER);
 
             this.splitPanel.setRightComponent(boardSidePanel);
             this.splitPanel.setVisible(true);
         }
-
-        TitledBorder titleBoard =
-                BorderFactory.createTitledBorder(boardView.getClass().getSimpleName());
-        titleBoard.setTitleJustification(TitledBorder.CENTER);
-        dynamicBoardView.setBorder(titleBoard);
 
         puzzle.addBoardListener(puzzle.getBoardView());
         if (this.elementFrame != null) {
@@ -958,11 +948,9 @@ public class PuzzleEditorPanel extends LegupPanel implements IHistoryListener {
     }
 
     /**
-     * Returns the current dynamic board view
+     * Returns the current board view pane.
      *
-     * @return the dynamic board view
+     * @return the board view {@code ZoomPane}
      */
-    @Nullable public DynamicView getDynamicBoardView() {
-        return dynamicBoardView;
-    }
+    public ZoomPane getBoardViewPane() { return boardViewPane; }
 }

@@ -5,7 +5,6 @@ import edu.rpi.legup.model.gameboard.Board;
 import edu.rpi.legup.model.gameboard.GridBoard;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -98,7 +97,7 @@ public class TreeTentBoard extends GridBoard {
      * @param e {@inheritDoc}
      * @param m {@inheritDoc}
      */
-    public void setCell(int x, int y, @Nullable Element e, @NotNull MouseEvent m) {
+    public void setCell(int x, int y, @NotNull Element e, @NotNull MouseEvent m) {
 
         if (((y == dimension.height && x >= 0 && x < dimension.width)
                 || (x == dimension.width && y >= 0 && y < dimension.height))) {
@@ -137,7 +136,7 @@ public class TreeTentBoard extends GridBoard {
      * @return the corresponding puzzle element
      */
     @Override
-    public PuzzleElement getPuzzleElement(@Nullable PuzzleElement element) {
+    public PuzzleElement getPuzzleElement(@NotNull PuzzleElement element) {
         if (element == null) { return null; }
 
         return switch (element.getIndex()) {

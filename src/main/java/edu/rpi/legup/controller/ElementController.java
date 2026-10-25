@@ -20,22 +20,24 @@ import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.model.tree.TreeElement;
 import edu.rpi.legup.model.tree.TreeElementType;
 import edu.rpi.legup.model.tree.TreeTransition;
-import edu.rpi.legup.puzzle.treetent.TreeTentBoard;
 import edu.rpi.legup.ui.DynamicView;
 import edu.rpi.legup.ui.boardview.BoardView;
 import edu.rpi.legup.ui.boardview.ElementSelection;
 import edu.rpi.legup.ui.boardview.ElementView;
 import edu.rpi.legup.ui.boardview.SelectionItemView;
 import edu.rpi.legup.ui.proofeditorui.treeview.*;
-import java.awt.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.event.*;
+import java.awt.geom.Point2D;
 
 /**
- * The ElementController class manages UI interactions related to elements in a {@link BoardView}.
- * It handles mouse events, key events, and actions related to element selection and manipulation
+ * The {@code ElementController} class manages UI interactions related to elements in a {@link BoardView}.
+ * It handles mouse events, key events, and actions related to element selection and manipulation.
  */
-public class ElementController
-        implements MouseListener, MouseMotionListener, ActionListener, KeyListener {
+public class ElementController extends ZoomViewController implements ActionListener {
+
     protected BoardView boardView;
     private Element selectedElement;
     private boolean goalPlacementMode;
@@ -44,10 +46,7 @@ public class ElementController
     private Object goalValueData;
     private boolean assumeSolution;
 
-    /**
-     * ElementController Constructor controller to handle ui events associated interacting with a
-     * {@link BoardView}
-     */
+    /** Constructs a controller to handle ui events associated with interacting with a {@link BoardView}. */
     public ElementController() {
         this.boardView = null;
         this.selectedElement = null;
@@ -59,21 +58,27 @@ public class ElementController
     }
 
     /**
-     * Sets the current selectedElement to the given selectedElement input
+     * Sets the currently selected element to the specified {@code Element}.
      *
-     * @param selectedElement the {@link Element} to set as the currently selected element
+     * @param selectedElement the {@code Element} to set as the currently selected element
      */
-    public void setSelectedElement(Element selectedElement) {
-        this.selectedElement = selectedElement;
-    }
+    public void setSelectedElement(Element selectedElement) { this.selectedElement = selectedElement; }
 
+    /**
+     * Sets whether the goal condition is being modified.
+     *
+     * @param goalPlacementMode {@code true} if the goal is being modified; {@code false} otherwise
+     */
     public void setGoalPlacementMode(boolean goalPlacementMode) {
         this.goalPlacementMode = goalPlacementMode;
-        if (goalPlacementMode) {
-            this.selectedElement = null;
-        }
+        if (goalPlacementMode) { this.selectedElement = null; }
     }
 
+    /**
+     * Sets the current {@code GoalType} being used for the puzzle.
+     *
+     * @param goalType goal type to be used for the puzzle
+     */
     public void setGoalType(GoalType goalType) {
         this.currentGoalType = goalType;
         Puzzle puzzle = GameBoardFacade.getInstance().getPuzzleModule();
@@ -90,21 +95,13 @@ public class ElementController
         }
     }
 
-    public void setGoalValue(PlaceableElement selectedElement) {
-        this.currentGoalValue = selectedElement;
-    }
+    public void setGoalValue(PlaceableElement selectedElement) { this.currentGoalValue = selectedElement; }
 
-    public void setGoalValueData(Object valueData) {
-        this.goalValueData = valueData;
-    }
+    public void setGoalValueData(Object valueData) { this.goalValueData = valueData; }
 
-    public GoalType getCurrentGoalType() {
-        return this.currentGoalType;
-    }
+    public GoalType getCurrentGoalType() { return this.currentGoalType; }
 
-    public PlaceableElement getCurrentGoalValue() {
-        return this.currentGoalValue;
-    }
+    public PlaceableElement getCurrentGoalValue() { return this.currentGoalValue; }
 
     public void setAssumeSolution(boolean assume) {
         this.assumeSolution = assume;
@@ -113,37 +110,14 @@ public class ElementController
     }
 
     /**
-     * Sets the {@link BoardView}
+     * Sets the {@code BoardView}.
      *
      * @param boardView board view
      */
-    public void setBoardView(BoardView boardView) {
-        this.boardView = boardView;
-    }
+    public void setBoardView(@Nullable BoardView boardView) { this.boardView = boardView; }
 
-    /**
-     * Invoked when the mouse button has been clicked (pressed and released) on a component.
-     *
-     * @param e the event to be processed
-     */
     @Override
-    public void mouseClicked(MouseEvent e) {}
-
-    /**
-     * Invoked when a mouse button has been pressed on a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    /**
-     * Invoked when a mouse button has been released on a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(@NotNull ControllerMouseEvent e) { // TODO: this whole thing needs a rewrite
         TreePanel treePanel = GameBoardFacade.getInstance().getLegupUI().getTreePanel();
         TreeView treeView = null;
         if (treePanel != null) {
@@ -156,59 +130,37 @@ public class ElementController
         }
 
         Board board = boardView.getBoard();
-        ElementView elementView = boardView.getElement(e.getPoint());
+        ElementView elementView = boardView.getElement(e.getPrecisePoint());
         TreeViewSelection selection = null;
         if (treeView != null) {
             selection = treeView.getSelection();
         }
         // funny
         if (elementView != null) {
-            if (board instanceof CaseBoard) {
-                CaseBoard caseBoard = (CaseBoard) board;
-                AutoCaseRuleCommand autoCaseRuleCommand =
-                        new AutoCaseRuleCommand(
-                                elementView, selection, caseBoard.getCaseRule(), caseBoard, e);
-                if (autoCaseRuleCommand.canExecute()) {
-                    autoCaseRuleCommand.execute();
-                    getInstance().getHistory().pushChange(autoCaseRuleCommand);
-                    if (treePanel != null) {
-                        treePanel.updateError("");
-                    }
-                } else {
-                    if (treePanel != null) {
-                        treePanel.updateError(autoCaseRuleCommand.getError());
-                    }
+            ICommand command;
+            if (board instanceof CaseBoard caseBoard) {
+                command = new AutoCaseRuleCommand(elementView, selection, caseBoard.getCaseRule(), caseBoard, e);
+            }
+            else { command = new EditDataCommand(elementView, selection, e); }
+
+            if (command.canExecute()) {
+                command.execute();
+                getInstance().getHistory().pushChange(command);
+                if (treeView != null) {
+                    treeView.updateError("");
                 }
             } else {
-                if (selection != null) {
-                    ICommand edit = new EditDataCommand(elementView, selection, e);
-                    if (edit.canExecute()) {
-                        edit.execute();
-                        getInstance().getHistory().pushChange(edit);
-                        if (treePanel != null) {
-                            treePanel.updateError("");
-                        }
-                    } else {
-                        if (treePanel != null) {
-                            treePanel.updateError(edit.getError());
-                        }
-                    }
+                if (treeView != null) {
+                    treeView.updateError(command.getError());
                 }
             }
         }
         //        if (selectedElement != null) {
         GridBoard b = (GridBoard) this.boardView.getBoard();
-        Point point = e.getPoint();
-        Point scaledPoint =
-                new Point(
-                        (int) Math.floor(point.x / (30 * this.boardView.getScale())),
-                        (int) Math.floor(point.y / (30 * this.boardView.getScale())));
-        if (this.boardView.getBoard() instanceof TreeTentBoard) {
-            scaledPoint.setLocation(scaledPoint.getX() - 1, scaledPoint.getY() - 1);
-        }
+        Point2D point = e.getPrecisePoint();
 
         if (goalPlacementMode) {
-            PuzzleElement selectedCell = b.getCell(scaledPoint.x, scaledPoint.y);
+            PuzzleElement selectedCell = b.getPuzzleElements().get(boardView.boardIndexAt(point));
             if (selectedCell != null) {
                 // Get the type of the goal value to determine how to set the cell's data and goal
                 // data
@@ -256,27 +208,27 @@ public class ElementController
                     // If cell was just marked as a goal, add to goal list if not already present
                     if (selectedCell.isGoal()) {
                         boolean exists = false;
-                        for (GridCell c : goal.getCells()) {
+                        for (GridCell c : goal.getElements()) {
                             if (c.getLocation().equals(gridCell.getLocation())) {
                                 exists = true;
                                 // If cell is a number tile, update the goal cell in the goal list
                                 // to have the correct data for hover text
                                 if (element.toString().equals("Number Tile")) {
-                                    goal.getCells().remove(c);
-                                    goal.addCell(gridCell.copy());
+                                    goal.getElements().remove(c);
+                                    goal.addElement(gridCell.copy());
                                 }
                                 break;
                             }
                         }
                         if (!exists) {
                             // Add a copy so Goal stores an independent snapshot of the goal cell
-                            goal.addCell(gridCell.copy());
+                            goal.addElement(gridCell.copy());
                         }
 
                     } else {
                         // If cell was unmarked as a goal, remove any matching location from the
                         // goal list
-                        var itr = goal.getCells().iterator();
+                        var itr = goal.getElements().iterator();
                         while (itr.hasNext()) {
                             GridCell c = itr.next();
                             if (c.getLocation().equals(gridCell.getLocation())) {
@@ -301,66 +253,26 @@ public class ElementController
         boardView.repaint();
     }
 
-    /**
-     * Invoked when the mouse enters a component.
-     *
-     * @param e the event to be processed
-     */
     @Override
-    public void mouseEntered(MouseEvent e) {
-        boardView.setFocusable(true);
-        boardView.requestFocusInWindow();
-    }
-
-    /**
-     * Invoked when the mouse exits a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mouseExited(MouseEvent e) {
-        boardView.setFocusable(false);
-        DynamicView dynamicView = getInstance().getLegupUI().getDynamicBoardView();
-        BoardView boardView = getInstance().getLegupUI().getBoardView();
-        if (boardView == null) {
-            boardView = getInstance().getLegupUI().getEditorBoardView();
-        }
-        if (dynamicView == null) {
-            dynamicView = getInstance().getLegupUI().getEditorDynamicBoardView();
-        }
+    public void mouseExited(@NotNull ControllerMouseEvent e) {
         if (boardView.getSelection().getHover() != null) {
             boardView.getSelection().clearHover();
-            dynamicView.resetStatus();
             boardView.repaint();
         }
     }
 
-    /**
-     * Invoked when the mouse dragged
-     *
-     * @param e the event to be processed
-     */
     @Override
-    public void mouseDragged(MouseEvent e) {
-        updateHover(e.getPoint());
-    }
+    public void mouseDragged(@NotNull ControllerMouseEvent e) { updateHover(e.getPrecisePoint()); }
 
-    /**
-     * Invoked when the mouse moved
-     *
-     * @param e the event to be processed
-     */
     @Override
-    public void mouseMoved(MouseEvent e) {
-        updateHover(e.getPoint());
-    }
+    public void mouseMoved(@NotNull ControllerMouseEvent e) { updateHover(e.getPrecisePoint()); }
 
     /**
      * Updates which element the hover is being applied to.
      *
-     * @param point Location of the cursor.
+     * @param point location of the cursor
      */
-    private void updateHover(Point point) {
+    private void updateHover(@NotNull Point2D point) {
         BoardView boardView = getInstance().getLegupUI().getBoardView();
         if (boardView == null) {
             boardView = getInstance().getLegupUI().getEditorBoardView();
@@ -376,7 +288,7 @@ public class ElementController
         String error = null;
 
         if (elementView != null && elementView != selection.getHover()) {
-            selection.newHover(elementView);
+            selection.setHover(elementView);
 
             PuzzleElement cell = elementView.getPuzzleElement();
             if (cell instanceof GridCell && cell.isGoal()) {
@@ -387,16 +299,16 @@ public class ElementController
                 if (puzzle != null) {
                     try {
                         String hoverText = puzzle.getGoal().getHoverText((GridCell) cell);
-                        boardView.getCanvas().setToolTipText(hoverText);
+                        boardView.getPeer().setToolTipText(hoverText);
                     } catch (IllegalArgumentException | NullPointerException ex) {
                         // If goal data not found or something else is null, clear tooltip instead
-                        boardView.getCanvas().setToolTipText(null);
+                        boardView.getPeer().setToolTipText(null);
                     }
                 } else {
-                    boardView.getCanvas().setToolTipText(null);
+                    boardView.getPeer().setToolTipText(null);
                 }
             } else {
-                boardView.getCanvas().setToolTipText(null);
+                boardView.getPeer().setToolTipText(null);
             }
 
             if (LegupPreferences.showMistakes()) {
@@ -428,11 +340,7 @@ public class ElementController
      */
     public void changeCell(MouseEvent e, PuzzleElement data) {}
 
-    /**
-     * Invoked when an action occurs.
-     *
-     * @param e the event to be processed
-     */
+    // Action fired from SelectionItemView in a DataSelectionView
     @SuppressWarnings("Unchecked")
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -473,7 +381,7 @@ public class ElementController
      * @param e the event to be processed
      */
     @Override
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(@NotNull KeyEvent e) {}
 
     /**
      * Invoked when a key has been pressed. See the class description for {@link KeyEvent} for a
@@ -482,7 +390,7 @@ public class ElementController
      * @param e the event to be processed
      */
     @Override
-    public void keyPressed(KeyEvent e) {}
+    public void keyPressed(@NotNull KeyEvent e) {}
 
     /**
      * Invoked when a key has been released. See the class description for {@link KeyEvent} for a
@@ -491,7 +399,7 @@ public class ElementController
      * @param e the event to be processed
      */
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void keyReleased(@NotNull KeyEvent e) {
         Puzzle puzzle = GameBoardFacade.getInstance().getPuzzleModule();
         BoardView boardView = getInstance().getLegupUI().getBoardView();
         if (boardView == null) {

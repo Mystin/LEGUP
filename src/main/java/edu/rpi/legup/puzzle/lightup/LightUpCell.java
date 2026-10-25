@@ -8,49 +8,38 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LightUpCell extends GridCell<Integer> {
-    private boolean isLite;
+    private int lightLevel;
 
-    public LightUpCell(int valueInt, @NotNull Point location) {
+    public LightUpCell(int valueInt, @Nullable Point location) {
         super(valueInt, location);
-        this.isLite = false;
+        resetLightLevel();
     }
 
     /**
-     * Sets the type of this LightUpCell
+     * Sets the type of this {@code LightUpCell}.
      *
      * @param e element to set the type of this binary cell to
+     * @param m mouse event to extract button pressed from
      */
     @Override
     public void setType(@NotNull Element e, @NotNull MouseEvent m) {
-        switch (e.getElementID()) {
-            case "LTUP-ELEM-0002":
-                this.data = -4;
-                break;
-            case "LTUP-ELEM-0001":
-                this.data = -1;
-                break;
-            case "LTUP-ELEM-0004":
-                this.data = -2;
-                break;
-            case "LTUP-ELEM-0003":
-                switch (m.getButton()) {
-                    case MouseEvent.BUTTON1:
-                        if (this.data < 0 || this.data > 3) {
-                            this.data = 0;
-                        } else {
-                            this.data = this.data + 1;
-                        }
-                        break;
-                    case MouseEvent.BUTTON3:
-                        if (this.data > 0) {
-                            this.data = this.data - 1;
-                        } else {
-                            this.data = 4;
-                        }
-                        break;
-                }
-                break;
-        }
+        setData(switch(e.getElementID()) {
+            case "LTUP-ELEM-0002" -> -4;
+            case "LTUP-ELEM-0001" -> -1;
+            case "LTUP-ELEM-0004" -> -2;
+            case "LTUP-ELEM-0003" -> switch(m.getButton()) {
+                case MouseEvent.BUTTON1 -> switch(data) {
+                    case 0,1,2,3 -> data + 1;
+                    default -> 0;
+                };
+                case MouseEvent.BUTTON3 -> switch(data) {
+                    case 1,2,3,4 -> data - 1;
+                    default -> 4;
+                };
+                default -> data;
+            };
+            default -> data;
+        });
     }
 
     public @Nullable LightUpCellType getType() {
@@ -72,35 +61,34 @@ public class LightUpCell extends GridCell<Integer> {
     }
 
     /**
-     * Gets whether this LightUpCell is illuminated
+     * Gets whether this {@code LightUpCell} is illuminated.
      *
-     * @return true if the cell is lit, false otherwise
+     * @return {@code true} if the cell is lit; {@code false} otherwise
      */
-    public boolean isLite() {
-        return isLite;
-    }
+    public boolean isLit() { return lightLevel > 0; }
+
+    /** Increases the light level of this tile. To be called when a bulb is added that illuminates this tile. */
+    public void addLight() { ++lightLevel; }
+
+    /** Decreases the light level of this tile. To be called when a bulb is removed that illuminated this tile. */
+    public void removeLight() { --lightLevel; }
+
+    /** Resets the light level of this tile to its starting value. */
+    public void resetLightLevel() { lightLevel = 0; }
 
     /**
-     * Sets whether this LightUpCell is illuminated
+     * Performs a deep copy on the {@code LightUpCell}.
      *
-     * @param isLite true if the cell should be lit, false otherwise
-     */
-    public void setLite(boolean isLite) {
-        this.isLite = isLite;
-    }
-
-    /**
-     * Performs a deep copy on the LightUpCell
-     *
-     * @return a new copy of the LightUpCell that is independent of this one
+     * @return a new copy of the {@code LightUpCell} that is independent of this one
      */
     @Override
     public @NotNull LightUpCell copy() {
-        LightUpCell copy = new LightUpCell(data, (Point) location.clone());
+        LightUpCell copy = new LightUpCell(data, (location != null ? (Point) location.clone() : null));
         copy.setIndex(index);
         copy.setModifiable(isModifiable);
         copy.setGiven(isGiven);
         copy.setGoal(isGoal);
+        copy.lightLevel = this.lightLevel;
         return copy;
     }
 

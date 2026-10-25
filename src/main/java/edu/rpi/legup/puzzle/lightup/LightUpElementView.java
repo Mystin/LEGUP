@@ -46,7 +46,7 @@ public class LightUpElementView extends GridElementView {
                 g.fillRect(location.x, location.y, size.width, size.height);
             }
             case EMPTY -> {
-                g.setColor(UIManager.getColor(cell.isLite() ? "LightUp.light" : "LightUp.white"));
+                g.setColor(UIManager.getColor(cell.isLit() ? "LightUp.light" : "LightUp.white"));
                 g.fillRect(location.x, location.y, size.width, size.height);
                 g.setColor(UIManager.getColor("LightUp.black"));
                 g.fillRect(
@@ -56,7 +56,7 @@ public class LightUpElementView extends GridElementView {
                         size.height / 8);
             }
             case UNKNOWN -> {
-                g.setColor(UIManager.getColor(cell.isLite() ? "LightUp.light" : "LightUp.unknown"));
+                g.setColor(UIManager.getColor(cell.isLit() ? "LightUp.light" : "LightUp.unknown"));
                 g.fillRect(location.x, location.y, size.width, size.height);
             }
             case BULB -> {

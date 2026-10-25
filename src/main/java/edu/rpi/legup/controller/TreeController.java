@@ -13,7 +13,7 @@ import static edu.rpi.legup.app.GameBoardFacade.getInstance;
  * The {@code TreeController} class handles UI events from a {@code TreePanel}. It extends the
  * {@code Controller} class to provide specific behavior for tree interactions.
  */
-public class TreeController extends ZoomViewController {
+public class TreeController extends ZoomViewController<TreeView> {
 
     /** {@code TreeController} constructor creates a controller object to listen to ui events from a {@link TreePanel}. */
     public TreeController() {}
@@ -22,7 +22,7 @@ public class TreeController extends ZoomViewController {
     public void mouseReleased(@NotNull ControllerMouseEvent e) {
         super.mouseReleased(e);
 
-        TreeView treeView = (TreeView) getView();
+        TreeView treeView = getView();
         TreeElementView treeElementView = treeView.getTreeElementView(e.getPrecisePoint());
         Puzzle puzzle = getInstance().getPuzzleModule();
         TreeViewSelection selection = treeView.getSelection();
@@ -44,7 +44,7 @@ public class TreeController extends ZoomViewController {
 
     @Override
     public void mouseExited(@NotNull ControllerMouseEvent e) {
-        TreeView treeView = (TreeView) getView();
+        TreeView treeView = getView();
         TreeViewSelection selection = treeView.getSelection();
 
         selection.clearHover();
@@ -52,7 +52,7 @@ public class TreeController extends ZoomViewController {
 
     @Override
     public void mouseDragged(@NotNull ControllerMouseEvent e) {
-        TreeView treeView = (TreeView) getView();
+        TreeView treeView = getView();
         TreeElementView treeElementView = treeView.getTreeElementView(e.getPrecisePoint());
         Puzzle puzzle = getInstance().getPuzzleModule();
 
@@ -78,7 +78,7 @@ public class TreeController extends ZoomViewController {
 
     @Override
     public void mouseMoved(@NotNull ControllerMouseEvent e) {
-        TreeView treeView = (TreeView) getView();
+        TreeView treeView = getView();
         TreeElementView treeElementView = treeView.getTreeElementView(e.getPrecisePoint());
         Puzzle puzzle = getInstance().getPuzzleModule();
 

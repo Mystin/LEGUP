@@ -1,8 +1,5 @@
 package edu.rpi.legup.ui.proofeditorui.treeview;
 
-import static edu.rpi.legup.ui.zoompane.ZoomViewport.ZoomPeer.NOTIFICATION;
-
-import com.formdev.flatlaf.FlatClientProperties;
 import edu.rpi.legup.app.GameBoardFacade;
 import edu.rpi.legup.controller.TreeController;
 import edu.rpi.legup.history.AddTreeElementCommand;
@@ -10,11 +7,10 @@ import edu.rpi.legup.history.DeleteTreeElementCommand;
 import edu.rpi.legup.history.ICommand;
 import edu.rpi.legup.history.MergeCommand;
 import edu.rpi.legup.ui.zoompane.ZoomPane;
-import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * {@code TreePanel} is a JPanel that manages and displays a tree view with associated toolbar and
@@ -26,9 +22,6 @@ public class TreePanel extends JPanel {
     private final ZoomPane treeViewPane;
     private final TreeView treeView;
     private final TreeToolbarPanel toolbar;
-
-    private final JLabel infoLabel;
-    private final JLabel errorLabel;
 
     /** Constructs a {@code TreePanel} and initializes the UI components. */
     public TreePanel() {
@@ -46,16 +39,6 @@ public class TreePanel extends JPanel {
         add(treeViewPane, BorderLayout.CENTER);
         add(toolbar, BorderLayout.WEST);
 
-        errorLabel = new JLabel();
-        errorLabel.putClientProperty(FlatClientProperties.STYLE_CLASS, "error");
-        errorLabel.setVisible(false);
-        treeViewPane.getZoomViewport().getPeer().add(errorLabel, NOTIFICATION);
-
-        infoLabel = new JLabel();
-        infoLabel.putClientProperty(FlatClientProperties.STYLE_CLASS, "info");
-        infoLabel.setVisible(false);
-        treeViewPane.getZoomViewport().getPeer().add(infoLabel, NOTIFICATION);
-
         updateUI();
     }
 
@@ -69,32 +52,6 @@ public class TreePanel extends JPanel {
             if (treeViewPadding != null) {
                 treeViewPane.putClientProperty("ZoomPane.viewPadding", treeViewPadding);
             }
-        }
-    }
-
-    /**
-     * Updates the info display with a status message.
-     *
-     * @param status the status message to display
-     */
-    public void updateStatus(String status) {
-        if (status.isEmpty()) { infoLabel.setVisible(false); }
-        else {
-            infoLabel.setText(status);
-            infoLabel.setVisible(true);
-        }
-    }
-
-    /**
-     * Updates the error display with an error message.
-     *
-     * @param error the error message to display
-     */
-    public void updateError(@NotNull String error) {
-        if (error.isEmpty()) { errorLabel.setVisible(false); }
-        else {
-            errorLabel.setText(error);
-            errorLabel.setVisible(true);
         }
     }
 
@@ -121,7 +78,7 @@ public class TreePanel extends JPanel {
         }
         else { error = add.getError(); }
 
-        updateError(error);
+        treeView.updateError(error);
     }
 
     /**
@@ -140,7 +97,7 @@ public class TreePanel extends JPanel {
         }
         else { error = del.getError(); }
 
-        updateError(error);
+        treeView.updateError(error);
     }
 
     /**
@@ -159,7 +116,7 @@ public class TreePanel extends JPanel {
         }
         else { error = merge.getError(); }
 
-        updateError(error);
+        treeView.updateError(error);
     }
 
     /**

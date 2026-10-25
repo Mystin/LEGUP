@@ -65,7 +65,7 @@ public class SatisfyNumberCaseRule extends CaseRule {
 
         LightUpCell checkCell = lightUpBoard.getCell(loc.x + 1, loc.y);
         if (checkCell != null) {
-            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLite()) {
+            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLit()) {
                 openSpots.add(checkCell);
             } else {
                 if (checkCell.getType() == LightUpCellType.BULB) {
@@ -75,7 +75,7 @@ public class SatisfyNumberCaseRule extends CaseRule {
         }
         checkCell = lightUpBoard.getCell(loc.x, loc.y + 1);
         if (checkCell != null) {
-            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLite()) {
+            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLit()) {
                 openSpots.add(checkCell);
             } else {
                 if (checkCell.getType() == LightUpCellType.BULB) {
@@ -85,7 +85,7 @@ public class SatisfyNumberCaseRule extends CaseRule {
         }
         checkCell = lightUpBoard.getCell(loc.x - 1, loc.y);
         if (checkCell != null) {
-            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLite()) {
+            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLit()) {
                 openSpots.add(checkCell);
             } else {
                 if (checkCell.getType() == LightUpCellType.BULB) {
@@ -95,7 +95,7 @@ public class SatisfyNumberCaseRule extends CaseRule {
         }
         checkCell = lightUpBoard.getCell(loc.x, loc.y - 1);
         if (checkCell != null) {
-            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLite()) {
+            if (checkCell.getType() == LightUpCellType.UNKNOWN && !checkCell.isLit()) {
                 openSpots.add(checkCell);
             } else {
                 if (checkCell.getType() == LightUpCellType.BULB) {

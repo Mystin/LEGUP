@@ -36,17 +36,12 @@ public class MustLightDirectRule extends DirectRule {
         LightUpCell parentCell = (LightUpCell) parentBoard.getPuzzleElement(puzzleElement);
         LightUpCell finalCell = (LightUpCell) finalBoard.getPuzzleElement(puzzleElement);
         if (!(parentCell.getType() == LightUpCellType.UNKNOWN
-                && !parentCell.isLite()
+                && !parentCell.isLit()
                 && finalCell.getType() == LightUpCellType.BULB)) {
             return super.getInvalidUseOfRuleMessage() + ": Modified cells must be bulbs";
         }
 
-        finalBoard.fillWithLight();
-        boolean isForced = isForcedBulb(parentBoard, parentCell.getLocation());
-        finalCell.setData(LightUpCellType.BULB.value);
-        finalBoard.fillWithLight();
-
-        if (isForced) {
+        if (isForcedBulb(parentBoard, parentCell.getLocation())) {
             return null;
         } else {
             return super.getInvalidUseOfRuleMessage() + ": This cell can be lit by another cell";
@@ -61,7 +56,7 @@ public class MustLightDirectRule extends DirectRule {
         // Check if this cell itself (the one with the bulb) has no other lighting option
         if ((modifiedCell.getType() == LightUpCellType.EMPTY
                         || modifiedCell.getType() == LightUpCellType.UNKNOWN)
-                && !modifiedCell.isLite()
+                && !modifiedCell.isLit()
                 && cannotLite.checkContradictionAt(modifiedBoard, modifiedCell) == null) {
             return true;
         }
@@ -72,7 +67,7 @@ public class MustLightDirectRule extends DirectRule {
                 break;
             } else {
                 if (c.getType() == LightUpCellType.EMPTY
-                        && !c.isLite()
+                        && !c.isLit()
                         && cannotLite.checkContradictionAt(modifiedBoard, c) == null) {
                     return true;
                 }
@@ -85,7 +80,7 @@ public class MustLightDirectRule extends DirectRule {
                 break;
             } else {
                 if (c.getType() == LightUpCellType.EMPTY
-                        && !c.isLite()
+                        && !c.isLit()
                         && cannotLite.checkContradictionAt(modifiedBoard, c) == null) {
                     return true;
                 }
@@ -98,7 +93,7 @@ public class MustLightDirectRule extends DirectRule {
                 break;
             } else {
                 if (c.getType() == LightUpCellType.EMPTY
-                        && !c.isLite()
+                        && !c.isLit()
                         && cannotLite.checkContradictionAt(modifiedBoard, c) == null) {
                     return true;
                 }
@@ -111,7 +106,7 @@ public class MustLightDirectRule extends DirectRule {
                 break;
             } else {
                 if (c.getType() == LightUpCellType.EMPTY
-                        && !c.isLite()
+                        && !c.isLit()
                         && cannotLite.checkContradictionAt(modifiedBoard, c) == null) {
                     return true;
                 }
@@ -134,7 +129,7 @@ public class MustLightDirectRule extends DirectRule {
         LightUpBoard lightUpBoard = (LightUpBoard) node.getBoard().copy();
         for (PuzzleElement element : tempBoard.getPuzzleElements()) {
             LightUpCell cell = (LightUpCell) element;
-            if (cell.getType() == LightUpCellType.UNKNOWN && !cell.isLite()) {
+            if (cell.getType() == LightUpCellType.UNKNOWN && !cell.isLit()) {
                 cell.setData(LightUpCellType.EMPTY.value);
                 if (isForcedBulb(initialBoard, cell.getLocation())) {
                     LightUpCell modCell = (LightUpCell) lightUpBoard.getPuzzleElement(cell);

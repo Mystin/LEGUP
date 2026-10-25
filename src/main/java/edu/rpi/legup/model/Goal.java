@@ -1,7 +1,7 @@
 package edu.rpi.legup.model;
 
-import edu.rpi.legup.model.gameboard.GridCell;
-import java.awt.*;
+import edu.rpi.legup.model.gameboard.PuzzleElement;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,7 +14,7 @@ import java.util.TreeMap;
  * <p>If the GoalType is DEFAULT, cellList must be null.
  */
 public class Goal {
-    private ArrayList<GridCell> cellList;
+    private ArrayList<PuzzleElement<?>> elementList;
     private final GoalType goalType;
     private boolean assumeSolution;
 
@@ -24,7 +24,7 @@ public class Goal {
      * @param goalType type of goal
      */
     public Goal(GoalType goalType) {
-        this.cellList = new ArrayList<>();
+        this.elementList = new ArrayList<>();
         this.goalType = goalType;
         this.assumeSolution = false;
     }
@@ -36,47 +36,47 @@ public class Goal {
      * @param assume whether to assume there is a solution to the puzzle
      */
     public Goal(GoalType goalType, boolean assume) {
-        this.cellList = new ArrayList<>();
+        this.elementList = new ArrayList<>();
         this.goalType = goalType;
         this.assumeSolution = assume;
     }
 
     /**
-     * Constructs a Goal object only requiring a given cell
+     * Constructs a {@code Goal} object only requiring a given cell.
      *
-     * @param cell Holds location and type of cell
+     * @param element Holds location and type of puzzle element
      * @param goalType type of goal
      */
-    public Goal(GridCell cell, GoalType goalType) {
-        this.cellList = new ArrayList<>();
-        if (cell != null) {
-            cellList.add(cell);
+    public Goal(PuzzleElement<?> element, GoalType goalType) {
+        this.elementList = new ArrayList<>();
+        if (element != null) {
+            elementList.add(element);
         }
         this.goalType = goalType;
         this.assumeSolution = false;
     }
 
     /**
-     * Get the goal's cells
+     * Get the goal's cells.
      *
      * @return GridCell cells
      */
-    public ArrayList<GridCell> getCells() {
-        return cellList;
+    public ArrayList<PuzzleElement<?>> getElements() {
+        return elementList;
     }
 
-    public void addCell(GridCell cell) {
-        cellList.add(cell);
+    public void addElement(PuzzleElement<?> element) {
+        elementList.add(element);
     }
 
-    public void setCellList(ArrayList<GridCell> cellList) {
-        this.cellList = cellList;
+    public void removeElement(PuzzleElement<?> element) {
+        elementList.remove(element);
     }
 
     /**
      * Get the goal type.
      *
-     * @return GoalType.
+     * @return the type of goal this is
      */
     public GoalType getType() {
         return goalType;
@@ -103,34 +103,34 @@ public class Goal {
     /**
      * Creates tool tip text for a cell being hovered over.
      *
-     * @param cell Cell to create text for.
-     * @return String tool tip text.
+     * @param element {@code PuzzleElement} to create text for
+     * @return {@code String} tool tip text
      */
-    public String getHoverText(GridCell cell) {
-        GridCell goalCell = null;
-        for (int i = 0; i < cellList.size() && goalCell == null; ++i) {
-            if (cellList.get(i).getLocation().equals(cell.getLocation())) {
-                goalCell = cellList.get(i);
+    public String getHoverText(PuzzleElement<?> element) {
+        PuzzleElement<?> goalElement = null;
+        for (int i = 0; i < elementList.size() && goalElement == null; ++i) {
+            if (elementList.get(i).getIndex() == element.getIndex()) {
+                goalElement = elementList.get(i);
             }
         }
 
-        if (goalCell == null) {
+        if (goalElement == null) {
             throw new IllegalArgumentException("Cell is not a goal condition.");
         }
-        String text = "Prove cell ";
+        String text = "Prove this ";
         return switch (goalType) {
             case GoalType.PROVE_CELL_MUST_BE ->
-                    text + "is forced to be " + goalCell.describeState(false) + ".";
+                    text + "is forced to be " + goalElement.describeState(false) + ".";
             case GoalType.PROVE_CELL_MIGHT_NOT_BE ->
-                    text + "is not forced to be " + goalCell.describeState(false) + ".";
+                    text + "is not forced to be " + goalElement.describeState(false) + ".";
             case GoalType.PROVE_SINGLE_CELL_VALUE ->
                     text + "is forced to have only one possible value.";
             case GoalType.PROVE_MULTIPLE_CELL_VALUE ->
                     text + "is forced to have multiple possible values.";
             case GoalType.PROVE_VALUES_ARE_POSSIBLE ->
-                    text + "can be " + goalCell.describeState(false) + ".";
+                    text + "can be " + goalElement.describeState(false) + ".";
             case GoalType.PROVE_VALUES_ARE_IMPOSSIBLE ->
-                    text + "cannot be " + goalCell.describeState(false) + ".";
+                    text + "cannot be " + goalElement.describeState(false) + ".";
             default -> null;
         };
     }
@@ -161,15 +161,15 @@ public class Goal {
                                     " is not forced to be ", " are not forced to be ")
                             + ".";
             case GoalType.PROVE_SINGLE_CELL_VALUE -> {
-                text += (cellList.size() > 1 ? "cells " : "cell ");
-                text += concatCellLocs(cellList);
-                text += (cellList.size() > 1 ? " are each" : " is");
+                text += (elementList.size() > 1 ? "elements " : "element ");
+                text += concatElementIdentities(elementList);
+                text += (elementList.size() > 1 ? " are each" : " is");
                 yield text + " forced to have exactly one possible value.";
             }
             case GoalType.PROVE_MULTIPLE_CELL_VALUE -> {
-                text += (cellList.size() > 1 ? "cells " : "cell ");
-                text += concatCellLocs(cellList);
-                text += (cellList.size() > 1 ? " are each" : " is");
+                text += (elementList.size() > 1 ? "elements " : "element ");
+                text += concatElementIdentities(elementList);
+                text += (elementList.size() > 1 ? " are each" : " is");
                 yield text + " not forced to have exactly one possible value.";
             }
             case GoalType.PROVE_ANY_SOLUTION -> "Find any solution to the puzzle.";
@@ -191,21 +191,20 @@ public class Goal {
      * @param cells List of cells to stringify.
      * @return String text.
      */
-    private String concatCellLocs(ArrayList<GridCell> cells) {
-        String text = "";
+    private String concatElementIdentities(ArrayList<PuzzleElement<?>> cells) {
+        StringBuilder text = new StringBuilder();
         for (int i = 0; i < cells.size(); ++i) {
             if (i == 1 && cells.size() == 2) {
-                text += " and ";
+                text.append(" and ");
             } else if (i != 0) {
-                text += ", ";
+                text.append(", ");
                 if (i == cells.size() - 1) {
-                    text += "and ";
+                    text.append("and ");
                 }
             }
-            Point loc = cells.get(i).getLocation();
-            text += "(" + (int) loc.getX() + ", " + (int) loc.getY() + ")";
+            text.append(cells.get(i).describeIdentity());
         }
-        return text;
+        return text.toString();
     }
 
     /**
@@ -213,12 +212,12 @@ public class Goal {
      *
      * @throws IllegalStateException when cellList is empty.
      */
-    private TreeMap<String, ArrayList<GridCell>> getCellsByState() throws IllegalStateException {
+    private TreeMap<String, ArrayList<PuzzleElement<?>>> getElementsByState() throws IllegalStateException {
 
-        if (cellList.isEmpty()) throw new IllegalStateException("No goal cells to copy.");
-        TreeMap<String, ArrayList<GridCell>> cellsByState = new TreeMap<>();
+        if (elementList.isEmpty()) throw new IllegalStateException("No goal cells to copy.");
+        TreeMap<String, ArrayList<PuzzleElement<?>>> cellsByState = new TreeMap<>();
 
-        for (GridCell cell : cellList) {
+        for (PuzzleElement<?> cell : elementList) {
             String state = cell.describeState(false);
             if (!cellsByState.containsKey(state)) {
                 cellsByState.put(state, new ArrayList<>());
@@ -242,25 +241,25 @@ public class Goal {
             pluralCondition = singleCondition;
         }
 
-        TreeMap<String, ArrayList<GridCell>> cellsByState;
+        TreeMap<String, ArrayList<PuzzleElement<?>>> cellsByState;
         try {
-            cellsByState = getCellsByState();
+            cellsByState = getElementsByState();
         } catch (IllegalStateException e) {
             return "No condition.";
         }
 
-        String text = "";
+        StringBuilder text = new StringBuilder();
         boolean delimiter = false;
-        for (Map.Entry<String, ArrayList<GridCell>> state : cellsByState.entrySet()) {
+        for (Map.Entry<String, ArrayList<PuzzleElement<?>>> state : cellsByState.entrySet()) {
             if (delimiter) {
-                text += " and ";
+                text.append(" and ");
             }
             delimiter = true;
-            text += (state.getValue().size() > 1 ? "cells " : "cell ");
-            text += concatCellLocs(state.getValue());
-            text += (state.getValue().size() > 1 ? pluralCondition : singleCondition);
-            text += state.getValue().getFirst().describeState(state.getValue().size() > 1);
+            text.append(state.getValue().size() > 1 ? "cells " : "cell ");
+            text.append(concatElementIdentities(state.getValue()));
+            text.append(state.getValue().size() > 1 ? pluralCondition : singleCondition);
+            text.append(state.getValue().getFirst().describeState(state.getValue().size() > 1));
         }
-        return text;
+        return text.toString();
     }
 }

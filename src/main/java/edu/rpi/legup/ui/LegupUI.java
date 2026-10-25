@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.swing.*;
+
+import edu.rpi.legup.ui.zoompane.ZoomPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -273,7 +275,7 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the ProofEditorPanel
      */
-    @NotNull public ProofEditorPanel getProofEditor() {
+    public ProofEditorPanel getProofEditor() {
         return (ProofEditorPanel) panels[1];
     }
 
@@ -282,7 +284,7 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the PuzzleEditorPanel
      */
-    @NotNull public PuzzleEditorPanel getPuzzleEditor() {
+    public PuzzleEditorPanel getPuzzleEditor() {
         return (PuzzleEditorPanel) panels[2];
     }
 
@@ -341,7 +343,7 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the BoardView
      */
-    @NotNull public BoardView getBoardView() {
+    public BoardView getBoardView() {
         return getProofEditor().getBoardView();
     }
 
@@ -350,7 +352,7 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the BoardView
      */
-    @NotNull public BoardView getEditorBoardView() {
+    public BoardView getEditorBoardView() {
         return getPuzzleEditor().getBoardView();
     }
 
@@ -359,8 +361,9 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the DynamicView
      */
-    @NotNull public DynamicView getDynamicBoardView() {
-        return getProofEditor().getDynamicBoardView();
+    public ZoomPane getDynamicBoardView() {
+        ProofEditorPanel proofEditorPanel = getProofEditor();
+        return (proofEditorPanel != null) ? proofEditorPanel.getBoardViewPane() : null;
     }
 
     /**
@@ -368,8 +371,9 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the DynamicView
      */
-    @NotNull public DynamicView getEditorDynamicBoardView() {
-        return getPuzzleEditor().getDynamicBoardView();
+    public ZoomPane getEditorDynamicBoardView() {
+        PuzzleEditorPanel puzzleEditorPanel = getPuzzleEditor();
+        return (puzzleEditorPanel != null) ? puzzleEditorPanel.getBoardViewPane() : null;
     }
 
     /**
@@ -377,7 +381,7 @@ public class LegupUI extends JFrame implements WindowListener {
      *
      * @return the TreePanel
      */
-    @NotNull public TreePanel getTreePanel() {
+    public TreePanel getTreePanel() {
         return getProofEditor().getTreePanel();
     }
 }

@@ -2,6 +2,8 @@ package edu.rpi.legup.puzzle.sudoku;
 
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.gameboard.GridCell;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -69,7 +71,7 @@ public class SudokuCell extends GridCell<Integer> {
      * @param e element to set the type of this SudokuCell to
      */
     @Override
-    public void setType(Element e, MouseEvent m) {
+    public void setType(@NotNull Element e, @NotNull MouseEvent m) {
         if (e.getElementName().equals("Number Tile")) {
             if (m.getButton() == MouseEvent.BUTTON1) {
                 if (this.data <= 0 || this.data > 8) {

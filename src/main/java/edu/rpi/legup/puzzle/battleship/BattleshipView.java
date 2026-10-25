@@ -1,8 +1,9 @@
 package edu.rpi.legup.puzzle.battleship;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.ui.boardview.GridBoardView;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 
 /** The view for the Battleship puzzle */
@@ -29,7 +30,7 @@ public class BattleshipView extends GridBoardView {
     }
 
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
         super.drawBoard(graphics2D);
     }
 }

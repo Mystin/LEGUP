@@ -87,23 +87,18 @@ public class ElementSelection {
     }
 
     /**
-     * Sets a new hovered ElementView, updating the hover state of the previous and new elements.
+     * Sets the hovered ElementView, updating the hover state of the previous and new elements,
+     * if they exist.
      *
-     * @param newHovered the new ElementView to be hovered
+     * @param newHovered the new {@code ElementView} to be hovered, or {@code null} to clear
      */
-    public void newHover(@NotNull ElementView newHovered) {
-        newHovered.setHover(true);
+    public void setHover(@Nullable ElementView newHovered) {
         if (hover != null) {
             hover.setHover(false);
         }
         hover = newHovered;
-    }
-
-    /** Clears the current hover state if there exists one */
-    public void clearHover() {
         if (hover != null) {
-            hover.setHover(false);
-            hover = null;
+            hover.setHover(true);
         }
     }
 

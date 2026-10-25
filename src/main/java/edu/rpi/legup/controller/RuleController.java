@@ -124,7 +124,7 @@ public class RuleController implements ActionListener {
                 }
             }
         }
-        GameBoardFacade.getInstance().getLegupUI().getTreePanel().updateError(updateErrorString);
+        GameBoardFacade.getInstance().getLegupUI().getTreePanel().getTreeView().updateError(updateErrorString);
     }
 
     /**

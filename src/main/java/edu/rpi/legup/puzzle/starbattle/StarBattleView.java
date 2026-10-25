@@ -1,8 +1,9 @@
 package edu.rpi.legup.puzzle.starbattle;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.ui.boardview.GridBoardView;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class StarBattleView extends GridBoardView {
      */
 
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
         super.drawBoard(graphics2D);
 
         for (StarBattleBorderView border : horizontalBorders) {

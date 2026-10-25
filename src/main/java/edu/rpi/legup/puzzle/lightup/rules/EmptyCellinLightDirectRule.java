@@ -31,12 +31,11 @@ public class EmptyCellinLightDirectRule extends DirectRule {
     @Override
     public String checkRuleRawAt(TreeTransition transition, PuzzleElement puzzleElement) {
         LightUpBoard initialBoard = (LightUpBoard) transition.getParents().get(0).getBoard();
-        initialBoard.fillWithLight();
         LightUpCell initCell = (LightUpCell) initialBoard.getPuzzleElement(puzzleElement);
         LightUpCell finalCell = (LightUpCell) transition.getBoard().getPuzzleElement(puzzleElement);
         if (finalCell.getType() == LightUpCellType.EMPTY
                 && initCell.getType() == LightUpCellType.UNKNOWN
-                && initCell.isLite()) {
+                && initCell.isLit()) {
             return null;
         }
         return super.getInvalidUseOfRuleMessage() + ": Cell is not forced to be empty";
@@ -54,7 +53,7 @@ public class EmptyCellinLightDirectRule extends DirectRule {
         LightUpBoard lightUpBoard = (LightUpBoard) node.getBoard().copy();
         for (PuzzleElement element : lightUpBoard.getPuzzleElements()) {
             LightUpCell cell = (LightUpCell) element;
-            if (cell.getType() == LightUpCellType.UNKNOWN && cell.isLite()) {
+            if (cell.getType() == LightUpCellType.UNKNOWN && cell.isLit()) {
                 cell.setData(LightUpCellType.EMPTY.value);
                 lightUpBoard.addModifiedData(cell);
             }

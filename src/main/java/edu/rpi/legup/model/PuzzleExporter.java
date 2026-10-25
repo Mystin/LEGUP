@@ -193,7 +193,7 @@ public abstract class PuzzleExporter {
         }
 
         if (!hasGoalCells && puzzle.getGoal().assumeSolution() && puzzle.getGoal() != null) {
-            for (GridCell goalCell : puzzle.getGoal().getCells()) {
+            for (GridCell goalCell : puzzle.getGoal().getElements()) {
                 Element cellElement = puzzle.getFactory().exportCell(newDocument, goalCell);
                 goalElement.appendChild(cellElement);
                 hasGoalCells = true;

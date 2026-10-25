@@ -13,19 +13,24 @@ import java.awt.geom.Point2D;
  * {@code ZoomViewController} is an abstract class designed to handle various mouse and key events to provide
  * interactability for a {@code ZoomView}.
  */
-public abstract class ZoomViewController implements KeyListener, ActionListener {
+public abstract class ZoomViewController <ViewType extends ZoomView> implements KeyListener {
 
     /** The view that this controller is installed on. */
-    private ZoomView view;
+    private ViewType view;
 
-    /** Set the {@code ZoomView} that this controller is installed in. */
-    public void setView(@Nullable ZoomView newView) { view = newView; }
+    /**
+     * Set the {@code ZoomView} that this controller is installed in.
+     * <p>
+     * <b>Note:</b> This method <i>does not</i> install this controller on the view.
+     */
+    public void setView(@Nullable ViewType newView) {
+        view = newView;
+    }
 
     /** @return the {@code ZoomView} that this controller is installed in. */
-    public ZoomView getView() { return view; }
-
-    @Override
-    public void actionPerformed(@NotNull ActionEvent e) {}
+    public ViewType getView() {
+        return view;
+    }
 
     @Override
     public void keyTyped(@NotNull KeyEvent e) {}
@@ -168,6 +173,8 @@ public abstract class ZoomViewController implements KeyListener, ActionListener 
          *
          * @return a {@code Point2D} object containing the x and y view coordinates
          */
-        public Point2D getPrecisePoint() { return precisePoint; }
+        public Point2D getPrecisePoint() {
+            return precisePoint;
+        }
     }
 }

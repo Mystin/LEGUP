@@ -1,7 +1,7 @@
 package edu.rpi.legup.history;
 
-import static edu.rpi.legup.app.GameBoardFacade.getInstance;
-
+import edu.rpi.legup.app.GameBoardFacade;
+import edu.rpi.legup.controller.ElementController;
 import edu.rpi.legup.model.Puzzle;
 import edu.rpi.legup.model.gameboard.Board;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
@@ -10,73 +10,126 @@ import edu.rpi.legup.model.tree.*;
 import edu.rpi.legup.ui.boardview.BoardView;
 import edu.rpi.legup.ui.boardview.ElementView;
 import edu.rpi.legup.ui.proofeditorui.treeview.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
- * The EditDataCommand class represents a command to edit the data of a puzzle element within a tree
- * transition. It extends PuzzleCommand and provides functionality to execute and undo changes made
- * to puzzle elements.
+ * {@code EditDataCommand} is a {@code PuzzleCommand} that edits the data of a list of puzzle element
+ * within a single {@link TreeTransition}. It will create a new transition if the given selection
+ * is a node with no children.
  */
 public class EditDataCommand extends PuzzleCommand {
-    private TreeTransition transition;
-    private PuzzleElement savePuzzleElement;
-    private PuzzleElement puzzleElement;
 
-    private ElementView elementView;
-    private TreeViewSelection selection;
-    private MouseEvent event;
+    /** {@code TreeTransition} that this command has edited. */
+    private TreeTransition transition;
+
+    /** New data to edit into the transition. */
+    private final List<PuzzleElement<?>> newPuzzleElements;
+
+    /** Saved data to bring back in the event of an undo. */
+    private List<PuzzleElement<?>> oldPuzzleElements;
+
+    /** {@code TreeViewSelection} from which to find the transition to make changes to. */
+    private final TreeViewSelection selection;
 
     /**
-     * EditDataCommand Constructor create a puzzle command for editing a board
+     * Constructs a puzzle command to edit the board data of a {@code TreeTransition}.
      *
-     * @param elementView currently selected puzzle puzzleElement view that is being edited
-     * @param selection currently selected tree puzzleElement views that are being edited
-     * @param event mouse event
+     * @param elements a {@code List} of {@code PuzzleElement}s to edit onto the board
+     * @param selection {@code TreeViewSelection} from which to find or create a
+     *        {@code TreeTransition} to apply edits to
      */
-    public EditDataCommand(ElementView elementView, TreeViewSelection selection, MouseEvent event) {
-        this.elementView = elementView;
-        this.selection = selection.copy();
-        this.event = event;
-        this.puzzleElement = null;
-        this.savePuzzleElement = null;
+    public EditDataCommand(List<PuzzleElement<?>> elements, TreeViewSelection selection) {
         this.transition = null;
+        this.newPuzzleElements = elements;
+        this.oldPuzzleElements = null;
+        this.selection = selection.copy();
     }
 
-    /** Executes the edit data command, modifying the puzzle element and propagating changes */
-    @SuppressWarnings("unchecked")
+    /**
+     * Constructs a puzzle command to edit the board data of a {@code TreeTransition}.
+     *
+     * @param element a {@code PuzzleElement} to edit onto the board
+     * @param selection {@code TreeViewSelection} from which to find or create a
+     *        {@code TreeTransition} to apply edits to
+     */
+    public EditDataCommand(PuzzleElement<?> element, TreeViewSelection selection) {
+        this(List.of(element), selection);
+    }
+
+    /**
+     * Executes the edit data command by finding or creating a {@code TreeTransition},
+     * editing in the new puzzle elements, and propagating changes.
+     */
     @Override
     public void executeCommand() {
-        Puzzle puzzle = getInstance().getPuzzleModule();
+        Puzzle puzzle = GameBoardFacade.getInstance().getPuzzleModule();
         Tree tree = puzzle.getTree();
-        TreeView treeView = getInstance().getLegupUI().getTreePanel().getTreeView();
-        BoardView boardView = getInstance().getLegupUI().getBoardView();
+        TreeView treeView = GameBoardFacade.getInstance().getLegupUI().getTreePanel().getTreeView();
+        BoardView boardView = GameBoardFacade.getInstance().getLegupUI().getBoardView();
         TreeElementView selectedView = selection.getFirstSelection();
         TreeElement treeElement = selectedView.getTreeElement();
 
-        Board board = treeElement.getBoard();
-        PuzzleElement selectedPuzzleElement = elementView.getPuzzleElement();
-
-        if (treeElement.getType() == TreeElementType.NODE) {
-            TreeNode treeNode = (TreeNode) treeElement;
-            if (treeNode.getChildren().isEmpty()) {
-                if (transition == null) {
-                    transition = tree.addNewTransition(treeNode);
-                }
+        // If we haven't found transition yet, this is the first execution, and we need to do setup
+        if (transition == null) {
+            // If a node is selected, it would error if it already had children so we just add one
+            if (treeElement.getType() == TreeElementType.NODE) {
+                transition = tree.addNewTransition((TreeNode) treeElement);
                 puzzle.notifyTreeListeners(listener -> listener.onTreeElementAdded(transition));
+                puzzle.notifyTreeListeners(listener -> listener.onTreeSelectionChanged(
+                        new TreeViewSelection(treeView.getElementView(transition))));
             }
-            board = transition.getBoard();
-            puzzleElement = board.getPuzzleElement(selectedPuzzleElement);
-            savePuzzleElement = puzzleElement.copy();
-        } else {
-            transition = (TreeTransition) treeElement;
-            puzzleElement = board.getPuzzleElement(selectedPuzzleElement);
-            savePuzzleElement = puzzleElement.copy();
+            else {
+                transition = (TreeTransition) treeElement;
+            }
+            // Save old board data in case of undo
+            Board board = transition.getBoard();
+            oldPuzzleElements = new ArrayList<>();
+            for (PuzzleElement<?> element : newPuzzleElements) {
+                oldPuzzleElements.add(board.getPuzzleElement(element).copy());
+            }
+            // Edit data in
+            editBoardElements(board, newPuzzleElements);
+            puzzle.notifyBoardListeners(listener -> listener.onTreeElementChanged(transition));
+        }
+        // This is a redo, so we have to do less work
+        else {
+            // If this command added the transition we saved the changes, so we just have to add it back
+            if (treeElement.getType() == TreeElementType.NODE) {
+                ((TreeNode) treeElement).addChild(transition);
+                puzzle.notifyTreeListeners(listener -> listener.onTreeElementAdded(transition));
+                puzzle.notifyTreeListeners(listener -> listener.onTreeSelectionChanged(
+                        new TreeViewSelection(treeView.getElementView(transition))));
+            }
+            // Transition may have other modified data, so we have to edit ours back in
+            else {
+                editBoardElements(transition.getBoard(), newPuzzleElements);
+                puzzle.notifyBoardListeners(listener -> listener.onTreeElementChanged(transition));
+            }
         }
 
+
+        // OLD VER
+        if (treeElement.getType() == TreeElementType.NODE) {
+            TreeNode treeNode = (TreeNode) treeElement;
+            if (transition == null) {
+                transition = tree.addNewTransition(treeNode);
+            }
+            else {
+                treeNode.addChild(transition);
+            }
+            puzzle.notifyTreeListeners(listener -> listener.onTreeElementAdded(transition));
+        } else {
+            transition = (TreeTransition) treeElement;
+        }
+        Board board = transition.getBoard();
+
         Board prevBoard = transition.getParents().get(0).getBoard();
-        boardView.getElementController().changeCell(event, puzzleElement);
+        ((ElementController) boardView.getController()).changeCell(event, puzzleElement);
 
         if (prevBoard.getPuzzleElement(selectedPuzzleElement).equalsData(puzzleElement)) {
             board.removeModifiedData(puzzleElement);
@@ -89,9 +142,8 @@ public class EditDataCommand extends PuzzleCommand {
         puzzle.notifyBoardListeners(listener -> listener.onTreeElementChanged(finalTreeElement));
         puzzle.notifyBoardListeners(listener -> listener.onBoardDataChanged(puzzleElement));
 
-        final TreeViewSelection newSelection =
-                new TreeViewSelection(treeView.getElementView(transition));
-        puzzle.notifyTreeListeners(listener -> listener.onTreeSelectionChanged(newSelection));
+        puzzle.notifyTreeListeners(listener -> listener.onTreeSelectionChanged(
+                new TreeViewSelection(treeView.getElementView(transition))));
     }
 
     /**
@@ -108,21 +160,26 @@ public class EditDataCommand extends PuzzleCommand {
         }
         TreeElementView selectedView = selection.getFirstSelection();
         Board board = selectedView.getTreeElement().getBoard();
-        PuzzleElement selectedPuzzleElement = elementView.getPuzzleElement();
         if (selectedView.getType() == TreeElementType.NODE) {
             TreeNodeView nodeView = (TreeNodeView) selectedView;
             if (!nodeView.getChildViews().isEmpty()) {
                 return CommandError.UNMODIFIABLE_BOARD.toString();
-            } else if (!board.getPuzzleElement(selectedPuzzleElement).isModifiable()) {
-                return CommandError.UNMODIFIABLE_DATA.toString();
+            }
+            for (PuzzleElement<?> element : newPuzzleElements) {
+                if (!board.getPuzzleElement(element).isModifiable()) {
+                    return CommandError.UNMODIFIABLE_DATA.toString();
+                }
             }
         } else {
             if (!board.isModifiable()) {
                 return CommandError.UNMODIFIABLE_BOARD.toString();
             } else if (!board.isModifiableCaseRule()) {
                 return CommandError.UNMODIFIABLE_DATA_CASE_RULE.toString();
-            } else if (!board.getPuzzleElement(selectedPuzzleElement).isModifiable()) {
-                return CommandError.UNMODIFIABLE_DATA.toString();
+            }
+            for (PuzzleElement<?> element : newPuzzleElements) {
+                if (!board.getPuzzleElement(element).isModifiable()) {
+                    return CommandError.UNMODIFIABLE_DATA.toString();
+                }
             }
         }
         return null;
@@ -162,5 +219,26 @@ public class EditDataCommand extends PuzzleCommand {
         final TreeElement finalTreeElement = selection.getFirstSelection().getTreeElement();
         puzzle.notifyBoardListeners(listener -> listener.onTreeElementChanged(finalTreeElement));
         puzzle.notifyTreeListeners(listener -> listener.onTreeSelectionChanged(selection));
+    }
+
+    /**
+     * Edit new puzzle element data into board to match the specified elements passed in.
+     * Propagates and notifies board listeners of changes.
+     *
+     * @param board {@code Board} to edit elements of
+     * @param newElements {@code PuzzleElement}s to edit onto the board
+     */
+    private void editBoardElements(@NotNull Board board, @NotNull List<PuzzleElement<?>> newElements) {
+        Puzzle puzzle = GameBoardFacade.getInstance().getPuzzleModule();
+        for (PuzzleElement<?> element : newElements) {
+            PuzzleElement<?> boardElement = board.getPuzzleElement(element);
+            if (element.getData().getClass().isInstance(boardElement.getData())) {
+                boardElement.setData(element.getData());
+            }
+            else {
+                throw new IllegalStateException();
+            }
+            puzzle.notifyBoardListeners(listener -> listener.onBoardDataChanged(boardElement));
+        }
     }
 }

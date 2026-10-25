@@ -71,7 +71,8 @@ public class EmptyCornersDirectRule extends DirectRule {
         LightUpBoard bulbCaseBoard = finalBoard.copy();
         LightUpCell bulbCaseCell = (LightUpCell) bulbCaseBoard.getPuzzleElement(puzzleElement);
         bulbCaseCell.setData(LightUpCellType.BULB.value);
-        bulbCaseBoard.fillWithLight();
+        Point bulbCaseLoc = bulbCaseCell.getLocation();
+        bulbCaseBoard.calculateBulbEffect(bulbCaseLoc.x, bulbCaseLoc.y, true);
 
         boolean createsContra = false;
         for (LightUpCell c : numberedCells) {

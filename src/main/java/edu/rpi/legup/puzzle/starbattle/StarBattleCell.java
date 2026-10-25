@@ -2,6 +2,8 @@ package edu.rpi.legup.puzzle.starbattle;
 
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.gameboard.GridCell;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
@@ -39,7 +41,7 @@ public class StarBattleCell extends GridCell<Integer> {
      * @param m the MouseEvent triggering the change
      */
     @Override
-    public void setType(Element e, MouseEvent m) {
+    public void setType(@NotNull Element e, @NotNull MouseEvent m) {
         switch (e.getElementID()) {
             case "STBL-PLAC-0001":
                 this.data = -3;

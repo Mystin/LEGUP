@@ -13,10 +13,10 @@ import java.util.Set;
  * Abstract class representing a game board. This class provides functionality for managing puzzle
  * elements, tracking modifications, and determining if the board is modifiable.
  */
-public abstract class Board {
+public abstract class Board <ElementData> {
 
-    protected List<PuzzleElement> puzzleElements;
-    protected Set<PuzzleElement> modifiedData;
+    protected List<PuzzleElement<ElementData>> puzzleElements;
+    protected Set<PuzzleElement<ElementData>> modifiedData;
     protected Goal goal;
     protected boolean isModifiable;
     protected boolean isModifiableCaseRule;
@@ -37,9 +37,7 @@ public abstract class Board {
      */
     public Board(int size) {
         this();
-        for (int i = 0; i < size; i++) {
-            puzzleElements.add(null);
-        }
+        for (int i = 0; i < size; i++) { puzzleElements.add(null); }
     }
 
     /**
@@ -48,12 +46,9 @@ public abstract class Board {
      * @param puzzleElement the puzzle element to retrieve
      * @return the puzzle element at the corresponding index, or {@code null} if not found
      */
-    public PuzzleElement getPuzzleElement(@Nullable PuzzleElement puzzleElement) {
-        if (puzzleElement == null) {
-            return null;
-        }
+    public PuzzleElement<ElementData> getPuzzleElement(@NotNull PuzzleElement<ElementData> puzzleElement) {
         int index = puzzleElement.getIndex();
-        return index < puzzleElements.size() ? puzzleElements.get(index) : null;
+        return 0 < index && index < puzzleElements.size() ? puzzleElements.get(index) : null;
     }
 
     /**
@@ -62,10 +57,8 @@ public abstract class Board {
      * @param index index of the puzzle element
      * @param puzzleElement the puzzle element to set at the index
      */
-    public void setPuzzleElement(int index, @Nullable PuzzleElement puzzleElement) {
-        if (index < puzzleElements.size()) {
-            puzzleElements.set(index, puzzleElement);
-        }
+    public void setPuzzleElement(int index, @Nullable PuzzleElement<ElementData> puzzleElement) {
+        if (0 < index && index < puzzleElements.size()) { puzzleElements.set(index, puzzleElement); }
     }
 
     /**
@@ -80,15 +73,15 @@ public abstract class Board {
      *
      * @return puzzle elements on the board
      */
-    public List<PuzzleElement> getPuzzleElements() { return puzzleElements; }
+    public List<PuzzleElement<ElementData>> getPuzzleElements() { return puzzleElements; }
 
     /**
      * Sets the {@code PuzzleElement}s on the board.
      *
      * @param puzzleElements elements on the board
      */
-    public void setPuzzleElements(@NotNull List<PuzzleElement> puzzleElements) {
-        this.puzzleElements = puzzleElements;
+    public void setPuzzleElements(@NotNull List<PuzzleElement<ElementData>> puzzleElements) {
+        this.puzzleElements = List.copyOf(puzzleElements);
     }
 
     /**
@@ -133,14 +126,14 @@ public abstract class Board {
      *
      * @return set of modified puzzle element from the board
      */
-    public Set<PuzzleElement> getModifiedData() { return modifiedData; }
+    public Set<PuzzleElement<ElementData>> getModifiedData() { return modifiedData; }
 
     /**
      * Adds a {@code PuzzleElement} that has been modified to the list.
      *
      * @param puzzleElement puzzle element that has been modified
      */
-    public void addModifiedData(@NotNull PuzzleElement puzzleElement) {
+    public void addModifiedData(@NotNull PuzzleElement<ElementData> puzzleElement) {
         modifiedData.add(puzzleElement);
         puzzleElement.setModified(true);
     }
@@ -150,7 +143,7 @@ public abstract class Board {
      *
      * @param data puzzle element that has no longer been modified
      */
-    public void removeModifiedData(@NotNull PuzzleElement data) {
+    public void removeModifiedData(@NotNull PuzzleElement<ElementData> data) {
         modifiedData.remove(data);
         data.setModified(false);
     }
@@ -161,7 +154,7 @@ public abstract class Board {
      *
      * @param puzzleElement equivalent puzzle element with the new data
      */
-    public void notifyChange(@NotNull PuzzleElement puzzleElement) {
+    public void notifyChange(@NotNull PuzzleElement<ElementData> puzzleElement) {
         puzzleElements.set(puzzleElement.getIndex(), puzzleElement);
     }
 
@@ -171,14 +164,14 @@ public abstract class Board {
      *
      * @param puzzleElement equivalent puzzle element
      */
-    public void notifyAddition(@NotNull PuzzleElement puzzleElement) {}
+    public void notifyAddition(@NotNull PuzzleElement<ElementData> puzzleElement) {}
 
     /**
      * Called when a {@code PuzzleElement} has been deleted and passes in the equivalent puzzle element.
      *
      * @param puzzleElement equivalent puzzle element
      */
-    public void notifyDeletion(@NotNull PuzzleElement puzzleElement) {}
+    public void notifyDeletion(@NotNull PuzzleElement<ElementData> puzzleElement) {}
 
     /**
      * Creates a {@code Board} that is the result of merging all the boards in {@code boards}. For each puzzle
@@ -189,25 +182,25 @@ public abstract class Board {
      * @param boards the boards to merge
      * @return the result of merging all of the {@code boards}
      */
-    public Board mergedBoard(@NotNull Board lca, @NotNull List<Board> boards) {
+    public Board<ElementData> mergedBoard(@NotNull Board<ElementData> lca,
+                                          @NotNull List<Board<ElementData>> boards) {
+        Board<ElementData> mergedBoard = lca.copy();
 
-        Board mergedBoard = lca.copy();
+        Board<ElementData> firstBoard = boards.getFirst();
+        for (PuzzleElement<ElementData> lcaData : lca.getPuzzleElements()) {
+            PuzzleElement<ElementData> sharedData = firstBoard.getPuzzleElement(lcaData);
 
-        Board firstBoard = boards.getFirst();
-        for (PuzzleElement lcaData : lca.getPuzzleElements()) {
-            PuzzleElement mData = firstBoard.getPuzzleElement(lcaData);
-
-            boolean isSame = true;
-            for (Board board : boards) {
-                if (!mData.equalsData(board.getPuzzleElement(lcaData))) {
-                    isSame = false;
+            boolean isShared = true;
+            for (Board<ElementData> board : boards) {
+                if (!sharedData.equalsData(board.getPuzzleElement(lcaData))) {
+                    isShared = false;
                     break;
                 }
             }
 
-            if (isSame && !lcaData.equalsData(mData)) {
-                PuzzleElement mergedData = mergedBoard.getPuzzleElement(lcaData);
-                mergedData.setData(mData.getData());
+            if (isShared && !lcaData.equalsData(sharedData)) {
+                PuzzleElement<ElementData> mergedData = mergedBoard.getPuzzleElement(lcaData);
+                mergedData.setData(sharedData.getData());
                 mergedBoard.addModifiedData(mergedData);
             }
         }
@@ -221,8 +214,8 @@ public abstract class Board {
      * @param board board to check equivalence
      * @return {@code true} if the boards are equivalent; {@code false} otherwise
      */
-    public boolean equalsBoard(@NotNull Board board) {
-        for (PuzzleElement element : puzzleElements) {
+    public boolean equalsBoard(@NotNull Board<ElementData> board) {
+        for (PuzzleElement<ElementData> element : puzzleElements) {
             if (!element.equalsData(board.getPuzzleElement(element))) {
                 return false;
             }
@@ -233,7 +226,7 @@ public abstract class Board {
     /**
      * Performs a deep copy of this board.
      *
-     * @return a new copy of the board that is independent of this one
+     * @return a new copy of the board
      */
-    public abstract Board copy();
+    public abstract Board<ElementData> copy();
 }

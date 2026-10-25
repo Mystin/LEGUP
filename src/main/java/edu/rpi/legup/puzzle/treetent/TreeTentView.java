@@ -1,6 +1,5 @@
 package edu.rpi.legup.puzzle.treetent;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.model.gameboard.CaseBoard;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.model.tree.TreeElement;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 public class TreeTentView extends GridBoardView {
     private static final Logger LOGGER = LogManager.getLogger(TreeTentView.class.getName());
@@ -204,7 +204,7 @@ public class TreeTentView extends GridBoardView {
      * @return the calculated dimension for rendering the board
      */
     @Override
-    protected Dimension getProperSize() {
+    protected @NotNull Dimension getProperSize() {
         Dimension boardViewSize = new Dimension();
         boardViewSize.width = (gridSize.width + 2) * elementSize.width;
         boardViewSize.height = (gridSize.height + 2) * elementSize.height;
@@ -217,7 +217,7 @@ public class TreeTentView extends GridBoardView {
      * @param treeElement tree element
      */
     @Override
-    public void onTreeElementChanged(TreeElement treeElement) {
+    public void onTreeElementChanged(@NotNull TreeElement treeElement) {
         super.onTreeElementChanged(treeElement);
         TreeTentBoard treeTentBoard;
         if (board instanceof CaseBoard) {
@@ -240,7 +240,7 @@ public class TreeTentView extends GridBoardView {
      * @param graphics2D the Graphics2D context used for rendering
      */
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
         super.drawBoard(graphics2D);
 
         for (TreeTentLineView view : lineViews) {

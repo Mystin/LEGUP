@@ -1,6 +1,5 @@
 package puzzles.testpuzzle;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.controller.ElementController;
 import edu.rpi.legup.model.Puzzle;
 import edu.rpi.legup.model.gameboard.Board;
@@ -25,7 +24,7 @@ public class TestPuzzle extends Puzzle {
     public void initializeView() {
         boardView =
                 new GridBoardView(
-                        new BoardController(),
+                        new ElementController(),
                         new ElementController(),
                         ((GridBoard) currentBoard).getDimension());
         boardView.setBoard(currentBoard);

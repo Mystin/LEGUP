@@ -1,6 +1,5 @@
 package edu.rpi.legup.puzzle.skyscrapers;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.model.gameboard.Board;
 import edu.rpi.legup.model.gameboard.CaseBoard;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
@@ -10,6 +9,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 public class SkyscrapersView extends GridBoardView {
     private static final Logger LOGGER = LogManager.getLogger(SkyscrapersView.class.getName());
@@ -120,7 +120,7 @@ public class SkyscrapersView extends GridBoardView {
     }
 
     @Override
-    protected Dimension getProperSize() {
+    protected @NotNull Dimension getProperSize() {
         Dimension boardViewSize = new Dimension();
         boardViewSize.width = (gridSize.width + 2) * elementSize.width;
         boardViewSize.height = (gridSize.height + 2) * elementSize.height;
@@ -133,7 +133,7 @@ public class SkyscrapersView extends GridBoardView {
      * @param board board
      */
     @Override
-    public void setBoard(Board board) {
+    public void setBoard(@NotNull Board board) {
         if (this.board != board) {
             this.board = board;
 
@@ -184,7 +184,7 @@ public class SkyscrapersView extends GridBoardView {
     }
 
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
         super.drawBoard(graphics2D);
 
         for (SkyscrapersClueView clueView : northClues) {

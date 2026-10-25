@@ -90,7 +90,7 @@ public class PuzzleKeyAccelerator implements KeyListener {
                     }
                 }
             }
-            GameBoardFacade.getInstance().getLegupUI().getTreePanel().updateError(update);
+            GameBoardFacade.getInstance().getLegupUI().getTreePanel().getTreeView().updateError(update);
         }
     }
 

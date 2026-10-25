@@ -4,6 +4,8 @@ import static edu.rpi.legup.puzzle.skyscrapers.SkyscrapersType.convertToSkyType;
 
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.gameboard.GridCell;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
@@ -25,7 +27,7 @@ public class SkyscrapersCell extends GridCell<Integer> {
     }
 
     @Override
-    public void setType(Element e, MouseEvent m) {
+    public void setType(@NotNull Element e, @NotNull MouseEvent m) {
         switch (e.getElementID()) {
             case "SKYS-ELEM-0002":
                 this.data = 0;

@@ -81,7 +81,7 @@ public class TestPuzzleImporter extends PuzzleImporter {
                 for (int i = 0; i < cellList.getLength(); i++) {
                     GridCell cell =
                             (GridCell) puzzle.getFactory().importCell(cellList.item(i), gridBoard);
-                    goal.addCell(cell);
+                    goal.addElement(cell);
                 }
                 puzzle.setGoal(goal);
             } else {
@@ -127,7 +127,7 @@ public class TestPuzzleImporter extends PuzzleImporter {
                 for (int i = 0; i < cellList.getLength(); i++) {
                     GridCell cell =
                             (GridCell) puzzle.getFactory().importCell(cellList.item(i), gridBoard);
-                    goal.addCell(cell);
+                    goal.addElement(cell);
                     gridBoard.getCell(cell.getLocation()).setGoal(true);
                 }
                 puzzle.setGoal(goal);

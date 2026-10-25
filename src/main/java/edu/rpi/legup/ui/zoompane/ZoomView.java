@@ -1,5 +1,6 @@
 package edu.rpi.legup.ui.zoompane;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.util.HiDPIUtils;
 import edu.rpi.legup.controller.ZoomViewController;
 import edu.rpi.legup.ui.zoompane.ZoomViewport.ZoomPeer;
@@ -11,9 +12,12 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
+
+import static edu.rpi.legup.ui.zoompane.ZoomViewport.ZoomPeer.NOTIFICATION;
 
 /**
  * The canvas object that draws an image or environment in a zoomable and interactive environment like a
@@ -37,6 +41,12 @@ public abstract class ZoomView {
 
     /** {@code ZoomViewController} defining interactive behavior of the view. */
     private ZoomViewController controller;
+
+    /** {@code JLabel} to add to the peer as a notification to display error messages. */
+    private final JLabel errorLabel;
+
+    /** {@code JLabel} to add to the peer as a notification to display status messages. */
+    private final JLabel infoLabel;
 
     /**
      * Helper for {@code ZoomView}s that want to draw strings and cannot use
@@ -67,7 +77,17 @@ public abstract class ZoomView {
     }
 
     /** Creates a {@code ZoomView} with a given controller. */
-    public ZoomView(@Nullable ZoomViewController controller) { setController(controller); }
+    public ZoomView(@Nullable ZoomViewController controller) {
+        setController(controller);
+
+        errorLabel = new JLabel();
+        errorLabel.putClientProperty(FlatClientProperties.STYLE_CLASS, "error");
+        errorLabel.setVisible(false);
+
+        infoLabel = new JLabel();
+        infoLabel.putClientProperty(FlatClientProperties.STYLE_CLASS, "info");
+        infoLabel.setVisible(false);
+    }
 
     /** Gets the area needed to draw this view. */
     public Dimension getSize() { return size; }
@@ -96,11 +116,15 @@ public abstract class ZoomView {
         if (peer != null && controller != null) {
             peer.removeZoomViewController(controller);
             peer.removeKeyListener(controller);
+            peer.remove(errorLabel);
+            peer.remove(infoLabel);
         }
         peer = newPeer;
         if (peer != null && controller != null) {
             peer.addZoomViewController(controller);
             peer.addKeyListener(controller);
+            peer.add(errorLabel, NOTIFICATION);
+            peer.add(infoLabel, NOTIFICATION);
         }
     }
 
@@ -137,6 +161,32 @@ public abstract class ZoomView {
 
     /** @return the {@code ZoomView}'s controller */
     public ZoomViewController getController() { return controller; }
+
+    /**
+     * Updates the error display with an error message.
+     *
+     * @param error the error message to display
+     */
+    public void updateError(@NotNull String error) {
+        if (error.isEmpty()) { errorLabel.setVisible(false); }
+        else {
+            errorLabel.setText(error);
+            errorLabel.setVisible(true);
+        }
+    }
+
+    /**
+     * Updates the info display with a status message.
+     *
+     * @param status the status message to display
+     */
+    public void updateStatus(@NotNull String status) {
+        if (status.isEmpty()) { infoLabel.setVisible(false); }
+        else {
+            infoLabel.setText(status);
+            infoLabel.setVisible(true);
+        }
+    }
 
     /**
      * Adds a {@code ChangeListener} to the list that is notified each time the view's size changes.

@@ -1,92 +1,88 @@
 package edu.rpi.legup.puzzle.lightup;
 
 import edu.rpi.legup.model.gameboard.GridBoard;
+import edu.rpi.legup.model.gameboard.GridCell;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LightUpBoard extends GridBoard {
 
     /**
-     * LightUpBoard Constructor - creates a LightUpBoard of the specified width and height
+     * Creates a {@code LightUpBoard} of the specified width and height.
      *
      * @param width width of the board
      * @param height height of the board
      */
-    public LightUpBoard(int width, int height) {
-        super(width, height);
-    }
+    public LightUpBoard(int width, int height) { super(width, height); }
 
     /**
-     * LightUpBoard Constructor - creates a square LightUpBoard of the specified size
+     * Creates a square {@code LightUpBoard} of the specified size.
      *
      * @param size width and height of the board
      */
-    public LightUpBoard(int size) {
-        super(size, size);
-    }
+    public LightUpBoard(int size) { this(size, size); }
 
     /**
-     * Sets cells in board to lite depending on whether there is a bulb cell in the current row or
-     * column
+     * Recalculates the light effects of all bulbs on the board. In most cases it is better to call
+     * {@link #calculateBulbEffect(int, int, boolean)}.
      */
-    public void fillWithLight() {
+    public void recalculateBulbEffects() {
         for (int y = 0; y < this.dimension.height; y++) {
             for (int x = 0; x < this.dimension.width; x++) {
-                getCell(x, y).setLite(false);
+                getCell(x, y).resetLightLevel();
             }
         }
 
         for (int y = 0; y < this.dimension.height; y++) {
             for (int x = 0; x < this.dimension.width; x++) {
-                LightUpCell cell = getCell(x, y);
-                if (cell.getType() == LightUpCellType.BULB) {
-                    cell.setLite(true);
-                    for (int i = x + 1; i < this.dimension.width; i++) {
-                        LightUpCell c = getCell(i, y);
-                        if (c.getType() == LightUpCellType.NUMBER
-                                || c.getType() == LightUpCellType.BLACK) {
-                            break;
-                        }
-                        c.setLite(true);
-                    }
-                    for (int i = x - 1; i >= 0; i--) {
-                        LightUpCell c = getCell(i, y);
-                        if (c.getType() == LightUpCellType.NUMBER
-                                || c.getType() == LightUpCellType.BLACK) {
-                            break;
-                        }
-                        c.setLite(true);
-                    }
-                    for (int i = y + 1; i < this.dimension.height; i++) {
-                        LightUpCell c = getCell(x, i);
-                        if (c.getType() == LightUpCellType.NUMBER
-                                || c.getType() == LightUpCellType.BLACK) {
-                            break;
-                        }
-                        c.setLite(true);
-                    }
-                    for (int i = y - 1; i >= 0; i--) {
-                        LightUpCell c = getCell(x, i);
-                        if (c.getType() == LightUpCellType.NUMBER
-                                || c.getType() == LightUpCellType.BLACK) {
-                            break;
-                        }
-                        c.setLite(true);
-                    }
-                }
+                if (getCell(x, y).getType() == LightUpCellType.BULB) { calculateBulbEffect(x, y, true); }
             }
         }
     }
 
+
+
     /**
-     * Gets adjancent cells to the specified cell
+     * Adds or removes light from cells in the area of effect of the given location based on the
+     * value of {@code addingLight}.
      *
-     * @param cell LightUpCell
-     * @return Set of adjacent LightUpCells
+     * @param x the x-coordinate of the cell to calculate the area of effect of
+     * @param y the y-coordinate of the cell to calculate the area of effect of
+     * @param addingLight {@code true} if light should be added to cells in the area of effect; {@code false}
+     *                                if light should be removed
+     */
+    public void calculateBulbEffect(int x, int y, boolean addingLight) {
+        if (inBounds(x, y)) {
+            Consumer<LightUpCell> lightEffect = addingLight ? LightUpCell::addLight : LightUpCell::removeLight;
+            Predicate<LightUpCellType> validType =
+                    type -> type != LightUpCellType.NUMBER && type != LightUpCellType.BLACK;
+            lightEffect.accept(getCell(x, y));
+            LightUpCell cell;
+
+            // Apply light effect in cardinal directions until NUMBER or BLACK encountered or run out of bounds
+            int i = x;
+            while (inBounds(--i, y) && validType.test((cell = getCell(i, y)).getType())) { lightEffect.accept(cell); }
+            i = x;
+            while (inBounds(++i, y) && validType.test((cell = getCell(i, y)).getType())) { lightEffect.accept(cell); }
+            i = y;
+            while (inBounds(x, --i) && validType.test((cell = getCell(x, i)).getType())) { lightEffect.accept(cell); }
+            i = y;
+            while (inBounds(x, ++i) && validType.test((cell = getCell(x, i)).getType())) { lightEffect.accept(cell); }
+        }
+    }
+
+    /**
+     * Gets adjacent cells to the specified cell.
+     *
+     * @param cell {@code LightUpCell}
+     * @return {@code Set} of adjacent {@code LightUpCell}s
      */
     public @NotNull Set<LightUpCell> getAdj(@NotNull LightUpCell cell) {
         Set<LightUpCell> adjCells = new HashSet<>();
@@ -140,7 +136,7 @@ public class LightUpBoard extends GridBoard {
         int num = 0;
         Set<LightUpCell> adjCells = getAdj(cell);
         for (LightUpCell c : adjCells) {
-            if (c.isLite()) {
+            if (c.isLit()) {
                 num++;
             }
         }
@@ -157,7 +153,7 @@ public class LightUpBoard extends GridBoard {
         int num = 0;
         Set<LightUpCell> adjCells = getAdj(cell);
         for (LightUpCell c : adjCells) {
-            if (c.getType() == LightUpCellType.UNKNOWN && !c.isLite()) {
+            if (c.getType() == LightUpCellType.UNKNOWN && !c.isLit()) {
                 num++;
             }
         }
@@ -172,7 +168,7 @@ public class LightUpBoard extends GridBoard {
      * @return cell at location x, y
      */
     @Override
-    public @Nullable LightUpCell getCell(int x, int y) {
+    public LightUpCell getCell(int x, int y) {
         return (LightUpCell) super.getCell(x, y);
     }
 
@@ -184,13 +180,13 @@ public class LightUpBoard extends GridBoard {
     @Override
     public void notifyChange(@NotNull PuzzleElement puzzleElement) {
         super.notifyChange(puzzleElement);
-        fillWithLight();
+        recalculateBulbEffects();
     }
 
     /**
-     * Performs a deep copy of the LightUpBoard
+     * Performs a deep copy of the {@code LightUpBoard}.
      *
-     * @return a new copy of the LightUpBoard that is independent of this one
+     * @return a new copy of the {@code LightUpBoard} that is independent of this one
      */
     @Override
     public @NotNull LightUpBoard copy() {
@@ -200,10 +196,7 @@ public class LightUpBoard extends GridBoard {
                 copy.setCell(x, y, getCell(x, y).copy());
             }
         }
-        for (PuzzleElement e : modifiedData) {
-            copy.getPuzzleElement(e).setModifiable(false);
-        }
-        copy.fillWithLight();
+        for (PuzzleElement e : modifiedData) { copy.getPuzzleElement(e).setModifiable(false); }
         return copy;
     }
 }

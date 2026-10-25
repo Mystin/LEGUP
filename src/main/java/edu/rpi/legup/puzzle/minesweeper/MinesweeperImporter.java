@@ -110,7 +110,7 @@ public class MinesweeperImporter extends PuzzleImporter {
                         boardCell.setGoalData(cell.getData());
                         boardCell.setGoal(true);
                     }
-                    goal.addCell(cell);
+                    goal.addElement(cell);
                     minesweeperBoard.getCell(cell.getLocation()).setGoal(true);
                 }
                 puzzle.setGoal(goal);

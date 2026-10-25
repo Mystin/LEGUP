@@ -38,7 +38,7 @@ public class CannotLightACellContradictionRule extends ContradictionRule {
         /*if (cell.getType() == LightUpCellType.BLACK || cell.getType() == LightUpCellType.NUMBER || cell.isLite()) {
             return "This cell does not contain a contradiction";
         }*/
-        if (cell.getType() != LightUpCellType.EMPTY || cell.isLite()) {
+        if (cell.getType() != LightUpCellType.EMPTY || cell.isLit()) {
             return super.getNoContradictionMessage();
         }
         Point location = cell.getLocation();
@@ -49,7 +49,7 @@ public class CannotLightACellContradictionRule extends ContradictionRule {
             if (c.getType() == LightUpCellType.BLACK || c.getType() == LightUpCellType.NUMBER) {
                 break;
             } else {
-                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLite()) {
+                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLit()) {
                     hor_count += 1;
                 }
             }
@@ -59,7 +59,7 @@ public class CannotLightACellContradictionRule extends ContradictionRule {
             if (c.getType() == LightUpCellType.BLACK || c.getType() == LightUpCellType.NUMBER) {
                 break;
             } else {
-                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLite()) {
+                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLit()) {
                     hor_count += 1;
                 }
             }
@@ -69,7 +69,7 @@ public class CannotLightACellContradictionRule extends ContradictionRule {
             if (c.getType() == LightUpCellType.BLACK || c.getType() == LightUpCellType.NUMBER) {
                 break;
             } else {
-                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLite()) {
+                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLit()) {
                     ver_count += 1;
                 }
             }
@@ -79,7 +79,7 @@ public class CannotLightACellContradictionRule extends ContradictionRule {
             if (c.getType() == LightUpCellType.BLACK || c.getType() == LightUpCellType.NUMBER) {
                 break;
             } else {
-                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLite()) {
+                if (c.getType() == LightUpCellType.UNKNOWN && !c.isLit()) {
                     ver_count += 1;
                 }
             }

@@ -1,9 +1,10 @@
 package edu.rpi.legup.puzzle.heyawake;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.ui.boardview.ElementView;
 import edu.rpi.legup.ui.boardview.GridBoardView;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.geom.Area;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class HeyawakeView extends GridBoardView {
     }
 
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
 
         for (ElementView elementView : elementViews) {
             elementView.draw(graphics2D);

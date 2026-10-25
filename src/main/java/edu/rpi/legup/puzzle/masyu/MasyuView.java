@@ -1,8 +1,9 @@
 package edu.rpi.legup.puzzle.masyu;
 
-import edu.rpi.legup.controller.BoardController;
 import edu.rpi.legup.model.gameboard.PuzzleElement;
 import edu.rpi.legup.ui.boardview.GridBoardView;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class MasyuView extends GridBoardView {
     }
 
     @Override
-    public void drawBoard(Graphics2D graphics2D) {
+    public void drawBoard(@NotNull Graphics2D graphics2D) {
         Graphics2D g = (Graphics2D) graphics2D.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.drawBoard(g);
@@ -46,7 +47,7 @@ public class MasyuView extends GridBoardView {
      * @param puzzleElement puzzleElement of the puzzleElement that changed
      */
     @Override
-    public void onBoardDataChanged(PuzzleElement puzzleElement) {
+    public void onBoardDataChanged(@NotNull PuzzleElement puzzleElement) {
         if (puzzleElement instanceof MasyuLine) {
             MasyuLineView lineView = new MasyuLineView((MasyuLine) puzzleElement);
             lineView.setSize(elementSize);

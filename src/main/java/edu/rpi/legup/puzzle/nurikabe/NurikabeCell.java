@@ -2,6 +2,8 @@ package edu.rpi.legup.puzzle.nurikabe;
 
 import edu.rpi.legup.model.elements.Element;
 import edu.rpi.legup.model.gameboard.GridCell;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
@@ -44,7 +46,7 @@ public class NurikabeCell extends GridCell<Integer> {
      * @param e element to set the type of this nurikabe cell to
      */
     @Override
-    public void setType(Element e, MouseEvent m) {
+    public void setType(@NotNull Element e, @NotNull MouseEvent m) {
         switch (e.getElementID()) {
             case "NURI-ELEM-0001":
                 this.data = -1;
